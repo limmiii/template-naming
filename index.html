@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template Name Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --bg-2: #0f1218;
+    --panel: rgba(22, 26, 34, 0.7);
+    --panel-solid: #161a22;
+    --panel-2: #1a1f2a;
+    --panel-3: #242a36;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --text: #f0f4fb;
+    --muted: #8891a4;
+    --muted-2: #6b7387;
+    --accent: #7c5cff;
+    --accent-2: #a78bfa;
+    --accent-glow: rgba(124, 92, 255, 0.35);
+    --cyan: #38bdf8;
+    --good: #34d399;
+    --bad: #f87171;
+    --warn: #fbbf24;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+    --shadow-md: 0 8px 30px rgba(0,0,0,0.35);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(800px 500px at 85% -5%, rgba(124, 92, 255, 0.18) 0%, transparent 60%),
+      radial-gradient(700px 500px at -5% 100%, rgba(56, 189, 248, 0.12) 0%, transparent 55%),
+      radial-gradient(500px 400px at 50% 50%, rgba(124, 92, 255, 0.04) 0%, transparent 70%),
+      var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  .container {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+
+  /* Header */
+  header { margin-bottom: 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  header .header-text { flex: 1; min-width: 240px; }
+  @media (max-width: 600px) {
+    header .header-text { flex-basis: 100%; }
+  }
+  .api-key-toggle {
+    background: rgba(124, 92, 255, 0.08);
+    border: 1px solid rgba(124, 92, 255, 0.25);
+    color: var(--accent-2);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .api-key-toggle:hover {
+    background: rgba(124, 92, 255, 0.15);
+    border-color: rgba(124, 92, 255, 0.4);
+  }
+  .api-key-toggle.has-key { color: var(--good); border-color: rgba(52, 211, 153, 0.3); background: rgba(52, 211, 153, 0.08); }
+  .api-key-toggle.has-key:hover { background: rgba(52, 211, 153, 0.15); }
+  .api-key-panel {
+    display: none;
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--panel);
+    backdrop-filter: blur(20px);
+  }
+  .api-key-panel.open { display: block; }
+  .api-key-panel .row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .api-key-panel input {
+    flex: 1;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    outline: none;
+  }
+  .api-key-panel input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15); }
+  .api-key-panel button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .api-key-panel button.secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .api-key-panel .privacy {
+    font-size: 11px;
+    color: var(--muted-2);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  .api-key-panel .key-msg {
+    font-size: 11px;
+    margin-top: 8px;
+    min-height: 14px;
+  }
+  .api-key-panel .key-msg.error { color: var(--bad); }
+  .api-key-panel .key-msg.ok { color: var(--good); }
+  .logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px -8px var(--accent-glow);
+    flex-shrink: 0;
+  }
+  .logo svg { width: 22px; height: 22px; color: white; }
+  h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, #f0f4fb 0%, #c7cfde 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sub { color: var(--muted); font-size: 13px; letter-spacing: 0.01em; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 840px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Glass cards */
+  .card {
+    background: var(--panel);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .card h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted-2);
+    margin: 0 0 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 svg { width: 14px; height: 14px; opacity: 0.7; }
+
+  /* Drop zone */
+  .drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 200px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 14px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(180deg, rgba(26, 31, 42, 0.5) 0%, rgba(20, 24, 32, 0.5) 100%);
+    position: relative;
+  }
+  .drop:hover {
+    border-color: rgba(124, 92, 255, 0.5);
+    background: linear-gradient(180deg, rgba(124, 92, 255, 0.05) 0%, rgba(124, 92, 255, 0.02) 100%);
+    transform: translateY(-1px);
+  }
+  .drop.dragover {
+    border-color: var(--accent);
+    background: rgba(124, 92, 255, 0.08);
+    transform: scale(1.005);
+  }
+  .drop-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(124, 92, 255, 0.15), rgba(56, 189, 248, 0.1));
+    border: 1px solid rgba(124, 92, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    transition: transform 0.25s;
+  }
+  .drop:hover .drop-icon { transform: translateY(-2px) scale(1.05); }
+  .drop-icon svg { width: 22px; height: 22px; color: var(--accent-2); }
+  .drop-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .drop-title strong { color: var(--accent-2); font-weight: 600; }
+  .drop-hint { color: var(--muted-2); font-size: 12px; letter-spacing: 0.01em; }
+  .drop input { display: none; }
+
+  .preview-wrap { margin-top: 16px; display: none; animation: fadeSlide 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+  .preview-wrap.active { display: block; }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .preview {
+    width: 100%;
+    max-height: 440px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #000;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .filemeta {
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted-2);
+    gap: 10px;
+  }
+  .filemeta span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* Form */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .field input, .field select {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  .field input::placeholder { color: var(--muted-2); }
+  .field input:focus, .field select:focus {
+    border-color: var(--accent);
+    background: var(--panel-3);
+    box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
+  }
+  .field select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238891a4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .field .help { font-size: 11px; color: var(--muted-2); margin-top: 6px; line-height: 1.5; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Result */
+  .result {
+    margin-top: 22px;
+    background:
+      radial-gradient(400px 200px at 0% 0%, rgba(124, 92, 255, 0.1) 0%, transparent 60%),
+      linear-gradient(180deg, #1a1f2e 0%, #12161e 100%);
+    border: 1px solid rgba(124, 92, 255, 0.18);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(124, 92, 255, 0.5), transparent);
+  }
+  .result-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .result-label svg { width: 12px; height: 12px; opacity: 0.6; }
+  .result-name {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    font-size: 22px;
+    font-weight: 600;
+    word-break: break-all;
+    background: linear-gradient(90deg, #a78bfa 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    min-height: 30px;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .result-name.empty {
+    -webkit-text-fill-color: var(--muted-2);
+    color: var(--muted-2);
+    font-size: 15px;
+    font-weight: 400;
+    font-family: inherit;
+    background: none;
+  }
+  .result-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    gap: 12px;
+  }
+  .counter {
+    color: var(--muted);
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--panel-2);
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .counter.over { color: var(--bad); border-color: rgba(248, 113, 113, 0.3); background: rgba(248, 113, 113, 0.08); }
+  .counter.warn { color: var(--warn); border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.08); }
+  .copy-btn {
+    background: linear-gradient(135deg, var(--accent) 0%, #6d4eff 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 4px 14px -4px var(--accent-glow);
+    letter-spacing: 0.01em;
+  }
+  .copy-btn svg { width: 14px; height: 14px; }
+  .copy-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #8a6dff 0%, #7c5cff 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px -4px var(--accent-glow);
+  }
+  .copy-btn:active:not(:disabled) { transform: translateY(0); }
+  .copy-btn.copied {
+    background: linear-gradient(135deg, var(--good) 0%, #10b981 100%);
+    box-shadow: 0 4px 14px -4px rgba(52, 211, 153, 0.4);
+  }
+  .copy-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+
+  .reset-btn {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: 0.01em;
+  }
+  .reset-btn svg { width: 14px; height: 14px; }
+  .reset-btn:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: var(--panel-2);
+  }
+  .reset-btn:active { transform: translateY(1px); }
+
+  .btn-group { display: inline-flex; gap: 8px; }
+
+  .errors {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--bad);
+    padding: 8px 12px;
+    background: rgba(248, 113, 113, 0.08);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 8px;
+    line-height: 1.5;
+  }
+  .errors:empty { display: none; }
+
+  .ocr-status {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(124, 92, 255, 0.06);
+    border: 1px solid rgba(124, 92, 255, 0.15);
+    border-radius: 8px;
+  }
+  .ocr-status.hidden { display: none; }
+  .ocr-status.done {
+    background: rgba(52, 211, 153, 0.06);
+    border-color: rgba(52, 211, 153, 0.2);
+    color: var(--good);
+  }
+  .spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-top-color: var(--accent-2);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer {
+    margin-top: 40px;
+    color: var(--muted-2);
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+  }
+  footer code {
+    background: var(--panel-2);
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    font-size: 10.5px;
+    color: var(--accent-2);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    background: rgba(124, 92, 255, 0.12);
+    border: 1px solid rgba(124, 92, 255, 0.25);
+    color: var(--accent-2);
+    text-transform: uppercase;
+    margin-left: auto;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7V5a2 2 0 0 1 2-2h2"/>
+          <path d="M16 3h2a2 2 0 0 1 2 2v2"/>
+          <path d="M20 17v2a2 2 0 0 1-2 2h-2"/>
+          <path d="M8 21H6a2 2 0 0 1-2-2v-2"/>
+          <path d="M8 12h8"/>
+          <path d="M12 8v8"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1>Template Name Generator</h1>
+        <div class="sub">Upload a template. Auto-detects category, language, and description — ready to copy.</div>
+      </div>
+      <button type="button" class="api-key-toggle" id="apiKeyToggle">
+        <span id="apiKeyToggleLabel">🔑 Set up Gemini key</span>
+      </button>
+    </header>
+
+    <div class="api-key-panel" id="apiKeyPanel">
+      <div class="row">
+        <input type="password" id="apiKeyInput" placeholder="Paste your Gemini API key (AIza…)" autocomplete="off" spellcheck="false" />
+        <button type="button" id="apiKeySave">Save</button>
+        <button type="button" class="secondary" id="apiKeyClear">Clear</button>
+      </div>
+      <div class="key-msg" id="apiKeyMsg"></div>
+      <div class="privacy">Stored only in this browser (localStorage). Sent only directly to Google's API — never to any other server. Get a free key at <strong>aistudio.google.com</strong> → "Get API key".</div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          Template
+          <span class="badge">Preview</span>
+        </h2>
+        <label class="drop" id="drop">
+          <input type="file" id="file" accept="image/*,.png,.jpg,.jpeg" />
+          <div class="drop-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="drop-title"><strong>Click to upload</strong> or drag &amp; drop</div>
+          <div class="drop-hint">PNG or JPG · 9:16 portrait · min 1080 × 1920</div>
+        </label>
+        <div class="preview-wrap" id="previewWrap">
+          <img id="preview" class="preview" alt="template preview" />
+          <div class="filemeta">
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span id="fileName">—</span>
+            </span>
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3"/><path d="M10 12H3"/><path d="M21 18H3"/><path d="M16 12h5"/></svg>
+              <span id="fileDims">—</span>
+            </span>
+          </div>
+          <div class="ocr-status hidden" id="ocrStatus"><span class="spinner"></span><span id="ocrStatusText">Detecting text…</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          Name Components
+        </h2>
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category">
+            <option value="">Select category…</option>
+            <option value="DW">DW — Daily Wishes</option>
+            <option value="FE">FE — Festivals</option>
+            <option value="OC">OC — Occasions</option>
+            <option value="DV">DV — Devotional</option>
+            <option value="TE">TE — Trending Events</option>
+            <option value="QS">QS — Quotes &amp; Status</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="subcategory">SubCategory</label>
+          <select id="subcategory">
+            <option value="">Select subcategory…</option>
+          </select>
+          <div class="help" id="subcatHelp">Pick a category to see options.</div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="desc">Short Description</label>
+            <input type="text" id="desc" placeholder="e.g. SUNRISE" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="language">Language</label>
+            <select id="language">
+              <option value="">—</option>
+              <option value="HI">HI — Hindi</option>
+              <option value="EN">EN — English</option>
+              <option value="NA">NA — No text</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="result">
+          <div class="result-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Generated Name
+          </div>
+          <div class="result-name empty" id="generated">Upload a template to generate a name</div>
+          <div class="result-meta">
+            <span class="counter" id="counter">0 / 30</span>
+            <div class="btn-group">
+              <button class="reset-btn" id="resetBtn" type="button" title="Clear the current template and start over">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 10 9 10"/></svg>
+                New Template
+              </button>
+              <button class="copy-btn" id="copyBtn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span id="copyLabel">Copy</span>
+              </button>
+            </div>
+          </div>
+          <div class="errors" id="errors"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      Format: <code>[Category]_[SubCategory]_ShortDESC_[Language]</code> · Max 30 chars · Underscores only · ASCII only
+    </footer>
+  </div>
+
+<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
+<script>
+  const SUBCATS = {
+    DW: ["GOODMORNING", "GOODEVENING", "GOODNIGHT"],
+    FE: ["SHIVRATRI", "DIWALI", "HOLI", "EID", "EKADASI", "CHRISTMAS", "NEWYEAR", "NAVRATRI", "DUSSEHRA", "RAKSHABANDHAN", "JANMASHTAMI", "GANESHCHATURTHI"],
+    OC: ["BIRTHDAY", "ANNIVERSARY", "WEDDING", "VALENTINE", "MOTHERSDAY", "FATHERSDAY", "FRIENDSHIP"],
+    DV: ["SHIV", "GANESH", "LAXMI", "VISHNU", "JESUS", "KRISHNA", "RAM", "HANUMAN", "DURGA", "SARASWATI"],
+    TE: ["IPL", "WORLDCUP", "ELECTIONS", "YOGADAY", "REPUBLICDAY", "INDEPENDENCEDAY", "NOTOBACCO", "EARTHDAY"],
+    QS: ["INSPIRATIONAL", "MOTIVATIONAL", "QUOTE", "STATUS"],
+  };
+  const VALID_CATEGORIES = Object.keys(SUBCATS);
+  const VALID_LANGS = ["HI","EN","NA"];
+  const MAX_LEN = 30;
+
+  const $ = (id) => document.getElementById(id);
+  const drop = $("drop");
+  const fileInput = $("file");
+  const preview = $("preview");
+  const previewWrap = $("previewWrap");
+  const fileName = $("fileName");
+  const fileDims = $("fileDims");
+  const categorySel = $("category");
+  const subcatInput = $("subcategory");
+  const subcatList = $("subcatList");
+  const subcatHelp = $("subcatHelp");
+  const descInput = $("desc");
+  const languageSel = $("language");
+  const generated = $("generated");
+  const counter = $("counter");
+  const copyBtn = $("copyBtn");
+  const errorsEl = $("errors");
+  const ocrStatus = $("ocrStatus");
+  const ocrStatusText = $("ocrStatusText");
+
+  // Drag & drop
+  ["dragenter", "dragover"].forEach(ev =>
+    drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("dragover"); })
+  );
+  ["dragleave", "drop"].forEach(ev =>
+    drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("dragover"); })
+  );
+  drop.addEventListener("drop", (e) => {
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  });
+  fileInput.addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) handleFile(f);
+  });
+
+  // Tracks whether OCR / vision have each completed for the current file,
+  // so we only render the final name once both are done.
+  let pendingOcr = false;
+  let pendingVision = false;
+  function maybeFinalize() {
+    if (pendingOcr || pendingVision) return;
+    ensureFallbackDefaults();
+    regenerate();
+  }
+
+  let geminiRunId = 0;
+
+  // ----- Gemini API key management -----
+  const GEMINI_KEY_LS = "templateNamer.geminiApiKey";
+  function getGeminiKey() {
+    try { return localStorage.getItem(GEMINI_KEY_LS) || ""; } catch { return ""; }
+  }
+  function setGeminiKey(k) {
+    try { localStorage.setItem(GEMINI_KEY_LS, k); } catch {}
+  }
+  function clearGeminiKey() {
+    try { localStorage.removeItem(GEMINI_KEY_LS); } catch {}
+  }
+  function isLikelyGeminiKey(k) {
+    return typeof k === "string" && /^AIza[A-Za-z0-9_-]{30,}$/.test(k.trim());
+  }
+
+  // ----- Gemini vision call -----
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        // result is "data:<mime>;base64,<data>" — strip the prefix
+        const s = String(r.result || "");
+        const i = s.indexOf(",");
+        resolve(i >= 0 ? s.slice(i + 1) : s);
+      };
+      r.onerror = () => reject(new Error("Could not read file"));
+      r.readAsDataURL(file);
+    });
+  }
+
+  const GEMINI_PROMPT = `You analyse Indian-context greeting / devotional / festival template images. Return JSON with these fields:
+
+- category: one of DW (daily wishes), FE (festivals), OC (occasions), DV (deities), TE (themes/events), QS (quotes/status).
+- subcategory: one of the valid subcategories for that category. Valid lists:
+  DW = [GOODMORNING, GOODEVENING, GOODNIGHT]
+  FE = [SHIVRATRI, DIWALI, HOLI, EID, EKADASI, CHRISTMAS, NEWYEAR, NAVRATRI, DUSSEHRA, RAKSHABANDHAN, JANMASHTAMI, GANESHCHATURTHI]
+  OC = [BIRTHDAY, ANNIVERSARY, WEDDING, VALENTINE, MOTHERSDAY, FATHERSDAY, FRIENDSHIP]
+  DV = [SHIV, GANESH, LAXMI, VISHNU, JESUS, KRISHNA, RAM, HANUMAN, DURGA, SARASWATI]
+  TE = [IPL, WORLDCUP, ELECTIONS, YOGADAY, REPUBLICDAY, INDEPENDENCEDAY, NOTOBACCO, EARTHDAY]
+  QS = [INSPIRATIONAL, MOTIVATIONAL, QUOTE, STATUS]
+  Pick the most specific match. If the image clearly shows e.g. Lord Shiva, use DV / SHIV.
+- shortDesc: ONE uppercase keyword 4 to 14 letters describing the visual content (examples: SUNRISE, LOTUS, TEMPLE, MEDITATION, FIREWORKS, ROSES, CANDLES, BLESSINGS). A-Z only, no spaces, no digits, no punctuation. Pick something specific to what's actually visible in this image.
+- language: "EN" if any English text is embossed/written on the image, "HI" if any Hindi/Devanagari text, "NA" if no readable text at all. If both English and Hindi are present, pick the dominant one.
+
+Return only the JSON object, no commentary.`;
+
+  async function analyzeWithGemini(file) {
+    const key = getGeminiKey();
+    if (!key) throw new Error("No API key configured");
+
+    const base64 = await fileToBase64(file);
+    const mime = file.type || "image/png";
+
+    const body = {
+      contents: [{
+        parts: [
+          { text: GEMINI_PROMPT },
+          { inline_data: { mime_type: mime, data: base64 } },
+        ],
+      }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            category:    { type: "string", enum: ["DW","FE","OC","DV","TE","QS"] },
+            subcategory: { type: "string" },
+            shortDesc:   { type: "string" },
+            language:    { type: "string", enum: ["HI","EN","NA"] },
+          },
+          required: ["category","subcategory","shortDesc","language"],
+        },
+      },
+    };
+
+    // Note: gemini-2.5-flash has free-tier allocation on most accounts;
+    // gemini-2.0-flash often shows "limit: 0" for new/Workspace accounts.
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(key);
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      const t = await resp.text().catch(() => "");
+      throw new Error(`HTTP ${resp.status} ${resp.statusText}${t ? " — " + t.slice(0, 200) : ""}`);
+    }
+    const data = await resp.json();
+
+    // Surface safety-blocked responses as a clear error
+    if (data?.promptFeedback?.blockReason) {
+      throw new Error("Blocked by safety filter: " + data.promptFeedback.blockReason);
+    }
+    const cand = data?.candidates?.[0];
+    if (!cand) throw new Error("Gemini returned no candidates");
+    if (cand.finishReason && cand.finishReason !== "STOP") {
+      throw new Error("Gemini finishReason: " + cand.finishReason);
+    }
+    const text = cand.content?.parts?.[0]?.text || "";
+    if (!text) throw new Error("Gemini returned empty content");
+
+    let parsed;
+    try { parsed = JSON.parse(text); }
+    catch (e) { throw new Error("Could not parse Gemini JSON: " + text.slice(0, 200)); }
+
+    return {
+      category:    String(parsed.category || "").toUpperCase(),
+      subcategory: sanitize(parsed.subcategory),
+      shortDesc:   sanitize(parsed.shortDesc),
+      language:    String(parsed.language || "").toUpperCase(),
+    };
+  }
+
+  function applyGeminiResult(r) {
+    const validCat = VALID_CATEGORIES.includes(r.category);
+    if (validCat) {
+      categorySel.value = r.category;
+      updateSubcatList();
+    }
+    if (r.subcategory) setSubcat(r.subcategory);
+    if (r.shortDesc) descInput.value = r.shortDesc;
+    if (VALID_LANGS.includes(r.language)) languageSel.value = r.language;
+
+    // Status chip shows the result
+    ocrStatus.classList.remove("hidden");
+    ocrStatus.classList.add("done");
+    ocrStatus.querySelector(".spinner")?.remove();
+    ocrStatusText.textContent = `Gemini → ${[r.category, r.subcategory, r.shortDesc, r.language].filter(Boolean).join(" / ")}`;
+    setTimeout(() => {
+      ocrStatus.classList.add("hidden");
+      if (!ocrStatus.querySelector(".spinner")) {
+        const sp = document.createElement("span");
+        sp.className = "spinner";
+        ocrStatus.insertBefore(sp, ocrStatus.firstChild);
+      }
+    }, 2800);
+
+    regenerate();
+  }
+
+  function geminiErrorFallback(err, file) {
+    console.warn("Gemini failed, falling back to local detection:", err);
+    const msg = err && err.message ? err.message : String(err);
+
+    // Show the error in the persistent status chip so it's visible even after
+    // regenerate() rewrites errorsEl. The chip stays put until next upload.
+    ocrStatus.classList.remove("hidden");
+    ocrStatus.classList.add("done"); // turns spinner into static dot
+    ocrStatus.querySelector(".spinner")?.remove();
+    // Friendly summary for common failure modes
+    let friendly = msg;
+    if (/HTTP 429/i.test(msg) && /limit:\s*0/i.test(msg)) {
+      friendly = "Gemini quota for this model is 0 on your account. Open Google AI Studio → billing, or try a different model.";
+    } else if (/HTTP 429/i.test(msg)) {
+      friendly = "Gemini rate limit hit (HTTP 429). Wait a minute and try again.";
+    } else if (/HTTP 400/i.test(msg) && /API key/i.test(msg)) {
+      friendly = "Gemini rejected the API key. Double-check it in the 🔑 panel.";
+    } else if (/safety/i.test(msg) || /BLOCK/i.test(msg)) {
+      friendly = "Gemini blocked this image (safety filter). Falling back to local detection.";
+    }
+    ocrStatusText.textContent = "Gemini failed → " + friendly + " (using local detection)";
+
+    // Run the existing local pipeline so the user still gets *something*
+    runLocalDetection(file);
+  }
+
+  function runLocalDetection(f) {
+    // Mark both async passes as pending
+    pendingOcr = true;
+    pendingVision = true;
+
+    // Filename is a weak hint only — use it but don't render yet
+    autoSuggestFromName(f.name);
+
+    const runVision = () => {
+      fileDims.textContent = `${preview.naturalWidth} × ${preview.naturalHeight}`;
+      describeImageFromVision(preview);
+    };
+    preview.onload = runVision;
+    preview.onerror = () => { pendingVision = false; maybeFinalize(); };
+    // If the image was cached and is already decoded, onload won't fire — run now.
+    if (preview.complete && preview.naturalWidth > 0) runVision();
+
+    detectLanguageFromImage(f);
+  }
+
+  function handleFile(f) {
+    const url = URL.createObjectURL(f);
+    preview.src = url;
+    previewWrap.classList.add("active");
+    fileName.textContent = f.name;
+
+    // Clear previous results so detection decides everything
+    categorySel.value = "";
+    subcatInput.value = "";
+    descInput.value = "";
+    languageSel.value = "";
+    updateSubcatList();
+
+    // Reset state flags
+    pendingOcr = false;
+    pendingVision = false;
+
+    // Show an "Analyzing…" state until detection finishes
+    counter.textContent = `0 / ${MAX_LEN}`;
+    counter.classList.remove("over", "warn");
+    errorsEl.textContent = "";
+    copyBtn.disabled = true;
+
+    if (getGeminiKey()) {
+      // Gemini path — single round trip, much more accurate
+      generated.textContent = "Analyzing with Gemini…";
+      generated.classList.add("empty");
+
+      // Show in-flight chip
+      ocrStatus.classList.remove("hidden", "done");
+      if (!ocrStatus.querySelector(".spinner")) {
+        const sp = document.createElement("span");
+        sp.className = "spinner";
+        ocrStatus.insertBefore(sp, ocrStatus.firstChild);
+      }
+      ocrStatusText.textContent = "Analyzing with Gemini…";
+
+      // Wait for image decode (so the preview shows) but do the API call in parallel
+      preview.onload = () => {
+        fileDims.textContent = `${preview.naturalWidth} × ${preview.naturalHeight}`;
+      };
+      if (preview.complete && preview.naturalWidth > 0) {
+        fileDims.textContent = `${preview.naturalWidth} × ${preview.naturalHeight}`;
+      }
+
+      const myGemRun = ++geminiRunId;
+      analyzeWithGemini(f)
+        .then((r) => { if (myGemRun === geminiRunId) applyGeminiResult(r); })
+        .catch((err) => { if (myGemRun === geminiRunId) geminiErrorFallback(err, f); });
+    } else {
+      // No key — local Tesseract + MobileNet path (free, less accurate)
+      generated.textContent = "Analyzing image…";
+      generated.classList.add("empty");
+      runLocalDetection(f);
+    }
+  }
+
+  // --- Visual image description via MobileNet (free, runs in browser) ---
+  let _mobilenetModel = null;
+  let _mobilenetLoading = null;
+  async function ensureMobilenet() {
+    if (_mobilenetModel) return _mobilenetModel;
+    if (_mobilenetLoading) return _mobilenetLoading;
+    _mobilenetLoading = (async () => {
+      if (typeof mobilenet === "undefined") throw new Error("MobileNet library not loaded");
+      _mobilenetModel = await mobilenet.load({ version: 2, alpha: 1.0 });
+      return _mobilenetModel;
+    })();
+    return _mobilenetLoading;
+  }
+
+  // Map visual classifications to likely (Category, SubCategory) so we can fill those in
+  // when the filename and OCR text give us nothing.
+  const VISION_TO_CAT = [
+    [/sunrise|dawn/, "DW", "GOODMORNING"],
+    [/sunset|dusk/, "DW", "GOODEVENING"],
+    [/moon|planetarium|observatory|starr?y|night\s*sky/, "DW", "GOODNIGHT"],
+    [/lotus|water lily/, "DV", "LAXMI"],
+    [/candle|jack-o'-lantern|lantern|diya/, "DV", "SHIV"],
+    [/altar|church|monastery|mosque|stupa|temple|pagoda|shrine|dome/, "DV", "TEMPLE"],
+    [/fire\s*screen|fireworks|sparkler/, "FE", "DIWALI"],
+    [/bride|groom|wedding\s*gown/, "OC", "WEDDING"],
+    [/cake|birthday/, "OC", "BIRTHDAY"],
+    [/heart\b|valentine/, "OC", "VALENTINE"],
+    [/rose\b|rosehip|bouquet/, "QS", "INSPIRATIONAL"],
+    [/daisy|sunflower|hibiscus|marigold/, "QS", "INSPIRATIONAL"],
+    [/seashore|sandbar|coast|beach/, "QS", "INSPIRATIONAL"],
+    [/alp|mountain|volcano|valley/, "QS", "INSPIRATIONAL"],
+  ];
+
+  // Map ImageNet-style class names to clean, concise keywords we allow in ShortDESC.
+  // Ordering matters — more specific patterns go first.
+  const VISION_MAP = [
+    // Sky / time-of-day
+    [/sunrise|dawn/, "SUNRISE"],
+    [/sunset|dusk/, "SUNSET"],
+    [/moon|planetarium|observatory/, "MOON"],
+    [/stars|constellation|starry/, "STARS"],
+    [/sky|cloud/, "SKY"],
+
+    // Nature / landscape
+    [/seashore|sandbar|coast|lakeside|beach/, "BEACH"],
+    [/alp|volcano|mountain|cliff|valley|ravine/, "MOUNTAIN"],
+    [/ocean|sea\b|lake|pond|river|waterfall/, "OCEAN"],
+    [/forest|woods|tree\b|palm/, "FOREST"],
+    [/garden|park|meadow|field/, "NATURE"],
+    [/snow|iceberg|glacier/, "SNOW"],
+    [/rain|umbrella/, "RAIN"],
+    [/fountain/, "FOUNTAIN"],
+
+    // Lights / fire
+    [/candle|jack-o'-lantern|lantern|oil\s*lamp|diya/, "CANDLES"],
+    [/fire\s*screen|fireworks|sparkler|flare/, "FIREWORKS"],
+
+    // Flowers
+    [/lotus|water lily|pad/, "LOTUS"],
+    [/rose\b|rosehip/, "ROSES"],
+    [/daisy|sunflower|hibiscus|marigold|yellow lady'?s slipper|dahlia|orchid/, "FLOWERS"],
+    [/bouquet|vase|pot, flowerpot/, "FLOWERS"],
+
+    // Religious / devotional
+    [/altar|church|monastery|mosque|stupa|temple|pagoda|shrine|dome/, "TEMPLE"],
+    [/bible|prayer|rosary|crucifix|cross\b/, "PRAYER"],
+
+    // Occasions / life events
+    [/bride|groom|wedding|gown/, "WEDDING"],
+    [/cake|birthday/, "BIRTHDAY"],
+    [/heart/, "LOVE"],
+    [/balloon|kite|streamer|confetti/, "FESTIVE"],
+
+    // Decorative / aesthetic
+    [/necklace|jewelry|ring|earring|bracelet/, "ELEGANT"],
+    [/crown|throne|sceptre|regalia/, "ROYAL"],
+    [/silk|velvet|satin|lace|brocade/, "ELEGANT"],
+    [/gold|golden|brass/, "GOLDEN"],
+
+    // Urban
+    [/city|skyline|building|skyscraper/, "CITY"],
+
+    // Books / learning
+    [/book|library|notebook/, "WISDOM"],
+  ];
+
+  function pickVisionKeyword(predictions) {
+    if (!predictions || !predictions.length) return "";
+    // Prefer confident matches first
+    const sorted = [...predictions].sort((a, b) => b.probability - a.probability);
+    for (const p of sorted) {
+      const cls = (p.className || "").toLowerCase();
+      for (const [rx, key] of VISION_MAP) {
+        if (rx.test(cls)) return key;
+      }
+    }
+    // Fallback: clean up the top class name
+    const top = (sorted[0].className || "").split(",")[0].trim();
+    const words = top.split(/[\s-]+/)
+      .map(w => w.replace(/[^A-Za-z]/g, ""))
+      .filter(w => w.length >= 4 && w.length <= 12);
+    if (words.length) return words[words.length - 1].toUpperCase();
+    return "";
+  }
+
+  let visionRunId = 0;
+  function pickVisionCategory(predictions) {
+    if (!predictions || !predictions.length) return null;
+    const sorted = [...predictions].sort((a, b) => b.probability - a.probability);
+    for (const p of sorted) {
+      const cls = (p.className || "").toLowerCase();
+      for (const [rx, cat, sub] of VISION_TO_CAT) {
+        if (rx.test(cls)) return { cat, sub };
+      }
+    }
+    return null;
+  }
+
+  async function describeImageFromVision(imgEl) {
+    const myRun = ++visionRunId;
+    try {
+      const model = await ensureMobilenet();
+      if (myRun !== visionRunId) return;
+      const predictions = await model.classify(imgEl, 5);
+      if (myRun !== visionRunId) return;
+
+      // Fill Category/SubCategory from visual content if still empty
+      if (!categorySel.value || !subcatInput.value) {
+        const hint = pickVisionCategory(predictions);
+        if (hint) {
+          if (!categorySel.value) { categorySel.value = hint.cat; updateSubcatList(); }
+          if (!subcatInput.value) setSubcat(hint.sub);
+        }
+      }
+
+      // Fill ShortDESC from visual content if still empty
+      if (!descInput.value) {
+        const keyword = pickVisionKeyword(predictions);
+        if (keyword) descInput.value = keyword;
+      }
+
+      pendingVision = false;
+      maybeFinalize();
+    } catch (err) {
+      console.warn("Vision classification failed:", err);
+      pendingVision = false;
+      maybeFinalize();
+    }
+  }
+
+  // We only fill Language as a true default — if OCR finds no text, NA is the
+  // factually correct value per the spec. We do NOT invent a Category, SubCategory,
+  // or ShortDESC when auto-detection fails — guessing "QS / INSPIRATIONAL / TEMPLATE"
+  // for every unrecognised image is misleading. Instead, we leave those fields empty
+  // and let regenerate() show "Missing: Category, SubCategory, Description" so the
+  // user knows to fill them in (or plug in an API key for smarter detection).
+  function ensureFallbackDefaults() {
+    if (!languageSel.value) {
+      languageSel.value = "NA";
+    }
+  }
+
+  // --- OCR-based language detection (free, runs in browser via Tesseract.js) ---
+  let ocrRunId = 0;
+  async function detectLanguageFromImage(file) {
+    const myRun = ++ocrRunId;
+    ocrStatus.classList.remove("hidden", "done");
+    ocrStatusText.textContent = "Detecting text…";
+    try {
+      if (typeof Tesseract === "undefined") throw new Error("OCR library not loaded");
+      // Recognize with both English and Hindi — Tesseract picks up Devanagari glyphs with 'hin'
+      const { data } = await Tesseract.recognize(file, "eng+hin", {
+        logger: (m) => {
+          if (myRun !== ocrRunId) return;
+          if (m.status === "recognizing text" && typeof m.progress === "number") {
+            ocrStatusText.textContent = `Reading text… ${Math.round(m.progress * 100)}%`;
+          } else if (m.status && m.status.startsWith("loading")) {
+            ocrStatusText.textContent = "Loading OCR engine…";
+          }
+        }
+      });
+      if (myRun !== ocrRunId) return; // a newer upload superseded this one
+
+      const { lang, trustedText } = analyzeOcr(data);
+      languageSel.value = lang;
+
+      // Only feed *trusted* OCR text into the hint pipeline. If OCR didn't find
+      // any confident words, trustedText is "" and applyTextHints is a no-op —
+      // that prevents noise like "PRN" from being used as the short description.
+      applyTextHints(trustedText);
+
+      // Replace spinner with checkmark state
+      ocrStatus.classList.add("done");
+      ocrStatus.querySelector(".spinner")?.remove();
+      if (lang === "NA") {
+        ocrStatusText.textContent = "No readable text detected → NA";
+      } else {
+        ocrStatusText.textContent = `Detected ${lang === "HI" ? "Hindi" : "English"} text → ${lang}`;
+      }
+      // Hide the status after a moment
+      setTimeout(() => {
+        if (myRun === ocrRunId) {
+          ocrStatus.classList.add("hidden");
+          // Restore spinner for next run
+          if (!ocrStatus.querySelector(".spinner")) {
+            const sp = document.createElement("span");
+            sp.className = "spinner";
+            ocrStatus.insertBefore(sp, ocrStatus.firstChild);
+          }
+        }
+      }, 2500);
+
+      pendingOcr = false;
+      maybeFinalize();
+    } catch (err) {
+      console.error("OCR failed:", err);
+      if (myRun !== ocrRunId) return;
+      ocrStatusText.textContent = "OCR failed — defaulting to NA";
+      if (!languageSel.value) languageSel.value = "NA";
+      pendingOcr = false;
+      maybeFinalize();
+      setTimeout(() => {
+        if (myRun === ocrRunId) ocrStatus.classList.add("hidden");
+      }, 2500);
+    }
+  }
+
+  // Reuse keyword matching on any text source (OCR output or filename)
+  const CATEGORY_RULES = [
+    { match: /good\s*morning|शुभ\s*प्रभात|सुप्रभात/i, cat: "DW", sub: "GOODMORNING" },
+    { match: /good\s*evening|शुभ\s*संध्या/i, cat: "DW", sub: "GOODEVENING" },
+    { match: /good\s*night|शुभ\s*रात्रि|शुभरात्रि/i, cat: "DW", sub: "GOODNIGHT" },
+    { match: /diwali|deepavali|दिवाली|दीपावली/i, cat: "FE", sub: "DIWALI" },
+    { match: /holi|होली/i, cat: "FE", sub: "HOLI" },
+    { match: /shivratri|mahashivratri|शिवरात्रि|महाशिवरात्रि/i, cat: "FE", sub: "SHIVRATRI" },
+    { match: /\beid\b|ईद/i, cat: "FE", sub: "EID" },
+    { match: /ekadasi|ekadashi|एकादशी/i, cat: "FE", sub: "EKADASI" },
+    { match: /christmas|xmas|क्रिसमस/i, cat: "FE", sub: "CHRISTMAS" },
+    { match: /new\s*year|नया\s*साल|नव\s*वर्ष/i, cat: "FE", sub: "NEWYEAR" },
+    { match: /navratri|नवरात्रि/i, cat: "FE", sub: "NAVRATRI" },
+    { match: /dussehra|dasara|दशहरा/i, cat: "FE", sub: "DUSSEHRA" },
+    { match: /raksha\s*bandhan|rakhi|राखी|रक्षाबंधन/i, cat: "FE", sub: "RAKSHABANDHAN" },
+    { match: /janmashtami|जन्माष्टमी/i, cat: "FE", sub: "JANMASHTAMI" },
+    { match: /ganesh\s*chaturthi|गणेश\s*चतुर्थी/i, cat: "FE", sub: "GANESHCHATURTHI" },
+    { match: /birthday|जन्मदिन/i, cat: "OC", sub: "BIRTHDAY" },
+    { match: /anniversary|सालगिरह/i, cat: "OC", sub: "ANNIVERSARY" },
+    { match: /wedding|शादी|विवाह/i, cat: "OC", sub: "WEDDING" },
+    { match: /mother'?s?\s*day/i, cat: "OC", sub: "MOTHERSDAY" },
+    { match: /father'?s?\s*day/i, cat: "OC", sub: "FATHERSDAY" },
+    { match: /valentine/i, cat: "OC", sub: "VALENTINE" },
+    { match: /friendship/i, cat: "OC", sub: "FRIENDSHIP" },
+    { match: /ganesh|गणेश/i, cat: "DV", sub: "GANESH" },
+    { match: /laxmi|lakshmi|लक्ष्मी/i, cat: "DV", sub: "LAXMI" },
+    { match: /vishnu|विष्णु/i, cat: "DV", sub: "VISHNU" },
+    { match: /jesus|यीशु/i, cat: "DV", sub: "JESUS" },
+    { match: /krishna|कृष्ण/i, cat: "DV", sub: "KRISHNA" },
+    { match: /\bram\b|\brama\b|राम/i, cat: "DV", sub: "RAM" },
+    { match: /hanuman|हनुमान/i, cat: "DV", sub: "HANUMAN" },
+    { match: /durga|दुर्गा/i, cat: "DV", sub: "DURGA" },
+    { match: /saraswati|सरस्वती/i, cat: "DV", sub: "SARASWATI" },
+    { match: /shiv(?!ratri)|शिव/i, cat: "DV", sub: "SHIV" },
+    { match: /\bipl\b/i, cat: "TE", sub: "IPL" },
+    { match: /worldcup|world\s*cup/i, cat: "TE", sub: "WORLDCUP" },
+    { match: /elections?/i, cat: "TE", sub: "ELECTIONS" },
+    { match: /tobacco/i, cat: "TE", sub: "NOTOBACCO" },
+    { match: /yoga\s*day/i, cat: "TE", sub: "YOGADAY" },
+    { match: /earth\s*day/i, cat: "TE", sub: "EARTHDAY" },
+    { match: /republic\s*day|गणतंत्र\s*दिवस/i, cat: "TE", sub: "REPUBLICDAY" },
+    { match: /independence\s*day|स्वतंत्रता\s*दिवस/i, cat: "TE", sub: "INDEPENDENCEDAY" },
+    { match: /motivational/i, cat: "QS", sub: "MOTIVATIONAL" },
+    { match: /inspirational/i, cat: "QS", sub: "INSPIRATIONAL" },
+    { match: /\bquote[s]?\b/i, cat: "QS", sub: "QUOTE" },
+    { match: /status/i, cat: "QS", sub: "STATUS" },
+    { match: /\bmorning\b|प्रभात/i, cat: "DW", sub: "GOODMORNING" },
+    { match: /\bevening\b|संध्या/i, cat: "DW", sub: "GOODEVENING" },
+    { match: /\bnight\b|रात्रि/i, cat: "DW", sub: "GOODNIGHT" },
+  ];
+
+  const DESC_KEYWORDS = ["SUNRISE","SUNSET","MOON","STARS","RAIN","RAINY","SNOW","FLOWERS","ROSES",
+    "CANDLES","LIGHTS","LAMPS","DIYA","TEMPLE","MOUNTAIN","BEACH","OCEAN","SKY","GOLDEN","PASTEL",
+    "MINIMAL","GRADIENT","COZY","WARM","BLESSINGS","PRAYER","LOTUS","NATURE","FOREST","GARDEN",
+    "CLOUDS","DAWN","DUSK","FIREWORKS","FESTIVE","PEACEFUL","SERENE","LOVE","HAPPY","SMILE","JOY",
+    "HOPE","FAITH","DREAM","SHINE","GRACE","DIVINE","HOLY","SACRED"];
+
+  function applyTextHints(text) {
+    if (!text) return;
+    // Category + SubCategory from OCR text (only if still empty)
+    if (!categorySel.value || !subcatInput.value) {
+      for (const r of CATEGORY_RULES) {
+        if (r.match.test(text)) {
+          if (!categorySel.value) { categorySel.value = r.cat; updateSubcatList(); }
+          if (!subcatInput.value) setSubcat(r.sub);
+          break;
+        }
+      }
+    }
+    // Description from OCR text (only if still empty)
+    if (!descInput.value) {
+      const upper = text.toUpperCase();
+      for (const k of DESC_KEYWORDS) {
+        if (new RegExp("\\b" + k + "\\b").test(upper)) {
+          descInput.value = k;
+          break;
+        }
+      }
+      // If nothing matched, use the most prominent English word (4–12 letters) from the OCR text.
+      // 4+ chars only — 3-letter strings are usually OCR noise (PRN, lhe, etc.).
+      if (!descInput.value) {
+        const stop = new Set(["GOOD","MORNING","NIGHT","EVENING","HAPPY","THE","AND","FOR","YOU","WITH","YOUR","THIS","THAT","FROM","HAVE","WILL","WHAT","WHEN","WHERE"]);
+        const tokens = (text.match(/[A-Za-z]{4,12}/g) || []).map(t => t.toUpperCase());
+        const cand = tokens.filter(t => !stop.has(t)).sort((a,b) => b.length - a.length);
+        if (cand.length) descInput.value = cand[0];
+      }
+    }
+  }
+
+  // Decide language AND extract trusted text from Tesseract's structured output.
+  // Tesseract often "hallucinates" 2–3 char gibberish on textures with surprisingly
+  // high confidence, so we apply several layers of filtering:
+  //   - per-word confidence ≥ 70
+  //   - word length ≥ 3 (drops noise like "PRN", "lh", "..")
+  //   - word must be ≥ 60% letters (drops punctuation/symbol clusters)
+  //   - need at least 2 such words AND ≥ 5 total script characters
+  // If those bars aren't met, we treat the image as having no text at all,
+  // which forces language → NA and prevents OCR noise from polluting the description.
+  function analyzeOcr(data) {
+    if (!data) return { lang: "NA", trustedText: "" };
+    const words = data.words || [];
+    const confident = words.filter(w => {
+      if (!w || !w.text) return false;
+      if (typeof w.confidence === "number" && w.confidence < 70) return false;
+      const t = w.text.trim();
+      if (t.length < 3) return false;
+      const letters = (t.match(/[A-Za-z\u0900-\u097F]/g) || []).length;
+      if (letters < t.length * 0.6) return false;
+      return /[A-Za-z\u0900-\u097F]/.test(t);
+    });
+    if (confident.length < 2) return { lang: "NA", trustedText: "" };
+
+    let devanagari = 0, latin = 0;
+    for (const w of confident) {
+      for (const ch of w.text) {
+        const code = ch.codePointAt(0);
+        if (code >= 0x0900 && code <= 0x097F) devanagari++;
+        else if ((code >= 0x0041 && code <= 0x005A) || (code >= 0x0061 && code <= 0x007A)) latin++;
+      }
+    }
+    if (devanagari + latin < 5) return { lang: "NA", trustedText: "" };
+    return {
+      lang: devanagari >= latin ? "HI" : "EN",
+      trustedText: confident.map(w => w.text).join(" "),
+    };
+  }
+
+  function autoSuggestFromName(name) {
+    const n = name.toLowerCase();
+    const rules = [
+      { match: /good\s*morning/, cat: "DW", sub: "GOODMORNING" },
+      { match: /good\s*evening/, cat: "DW", sub: "GOODEVENING" },
+      { match: /good\s*night/, cat: "DW", sub: "GOODNIGHT" },
+      { match: /diwali|deepavali/, cat: "FE", sub: "DIWALI" },
+      { match: /holi/, cat: "FE", sub: "HOLI" },
+      { match: /shivratri|mahashivratri/, cat: "FE", sub: "SHIVRATRI" },
+      { match: /\beid\b/, cat: "FE", sub: "EID" },
+      { match: /ekadasi|ekadashi/, cat: "FE", sub: "EKADASI" },
+      { match: /christmas|xmas/, cat: "FE", sub: "CHRISTMAS" },
+      { match: /new\s*year/, cat: "FE", sub: "NEWYEAR" },
+      { match: /navratri/, cat: "FE", sub: "NAVRATRI" },
+      { match: /dussehra|dasara/, cat: "FE", sub: "DUSSEHRA" },
+      { match: /raksha\s*bandhan|rakhi/, cat: "FE", sub: "RAKSHABANDHAN" },
+      { match: /janmashtami/, cat: "FE", sub: "JANMASHTAMI" },
+      { match: /ganesh\s*chaturthi/, cat: "FE", sub: "GANESHCHATURTHI" },
+      { match: /birthday/, cat: "OC", sub: "BIRTHDAY" },
+      { match: /anniversary/, cat: "OC", sub: "ANNIVERSARY" },
+      { match: /wedding/, cat: "OC", sub: "WEDDING" },
+      { match: /mother'?s?\s*day/, cat: "OC", sub: "MOTHERSDAY" },
+      { match: /father'?s?\s*day/, cat: "OC", sub: "FATHERSDAY" },
+      { match: /valentine/, cat: "OC", sub: "VALENTINE" },
+      { match: /friendship/, cat: "OC", sub: "FRIENDSHIP" },
+      { match: /ganesh/, cat: "DV", sub: "GANESH" },
+      { match: /laxmi|lakshmi/, cat: "DV", sub: "LAXMI" },
+      { match: /vishnu/, cat: "DV", sub: "VISHNU" },
+      { match: /jesus/, cat: "DV", sub: "JESUS" },
+      { match: /krishna/, cat: "DV", sub: "KRISHNA" },
+      { match: /ram\b|rama\b/, cat: "DV", sub: "RAM" },
+      { match: /hanuman/, cat: "DV", sub: "HANUMAN" },
+      { match: /durga/, cat: "DV", sub: "DURGA" },
+      { match: /saraswati/, cat: "DV", sub: "SARASWATI" },
+      { match: /shiv(?!ratri)/, cat: "DV", sub: "SHIV" },
+      { match: /ipl/, cat: "TE", sub: "IPL" },
+      { match: /worldcup|world\s*cup/, cat: "TE", sub: "WORLDCUP" },
+      { match: /elections?/, cat: "TE", sub: "ELECTIONS" },
+      { match: /tobacco/, cat: "TE", sub: "NOTOBACCO" },
+      { match: /yoga\s*day/, cat: "TE", sub: "YOGADAY" },
+      { match: /earth\s*day/, cat: "TE", sub: "EARTHDAY" },
+      { match: /republic\s*day/, cat: "TE", sub: "REPUBLICDAY" },
+      { match: /independence\s*day/, cat: "TE", sub: "INDEPENDENCEDAY" },
+      { match: /motivational/, cat: "QS", sub: "MOTIVATIONAL" },
+      { match: /inspirational/, cat: "QS", sub: "INSPIRATIONAL" },
+      { match: /\bquote[s]?\b/, cat: "QS", sub: "QUOTE" },
+      { match: /status/, cat: "QS", sub: "STATUS" },
+      // time-of-day fallbacks
+      { match: /\bmorning\b/, cat: "DW", sub: "GOODMORNING" },
+      { match: /\bevening\b/, cat: "DW", sub: "GOODEVENING" },
+      { match: /\bnight\b/, cat: "DW", sub: "GOODNIGHT" },
+    ];
+    for (const r of rules) {
+      if (r.match.test(n)) {
+        if (!categorySel.value) { categorySel.value = r.cat; updateSubcatList(); }
+        if (!subcatInput.value) setSubcat(r.sub);
+        break;
+      }
+    }
+
+    // NOTE: Language is NOT set from the filename. It's decided only by the OCR
+    // pass on the actual image (HI if Hindi script detected, EN if Latin, NA if no text).
+
+    // Short description: pick a keyword
+    if (!descInput.value) {
+      const descKeywords = [
+        "SUNRISE","SUNSET","MOON","STARS","RAIN","RAINY","SNOW","FLOWERS","ROSES",
+        "CANDLES","LIGHTS","LAMPS","DIYA","TEMPLE","MOUNTAIN","BEACH","OCEAN","SKY",
+        "GOLDEN","PASTEL","MINIMAL","AESTHETIC","GRADIENT","COZY","WARM",
+        "BLESSINGS","PRAYER","LOTUS","NATURE","FOREST","GARDEN",
+        "CLOUDS","MIST","DAWN","DUSK","FIREWORKS","DECORATIVE","FESTIVE","CELEBRATION",
+        "PEACEFUL","SERENE","VINTAGE","MODERN","RUSTIC","ELEGANT"
+      ];
+      let picked = null;
+      for (const k of descKeywords) {
+        if (new RegExp("\\b" + k.toLowerCase() + "\\b").test(n)) { picked = k; break; }
+      }
+      if (!picked) {
+        const stop = new Set([
+          "template","create","detailed","rich","with","and","any","style",
+          "visual","background","card","greeting","whatsapp","shareable",
+          "vertical","poster","soft","deep","close","view","good","night",
+          "morning","evening","firefly","gemini","flash","flux","schnell",
+          "ideogram","seedream","minimal","aesthetic"
+        ]);
+        const tokens = n.replace(/\.[a-z0-9]+$/,"").split(/[^a-z]+/).filter(Boolean);
+        const cand = tokens
+          .filter(t => t.length >= 4 && t.length <= 12 && !stop.has(t) && !/^\d+$/.test(t))
+          .sort((a,b) => b.length - a.length);
+        if (cand.length) picked = cand[0].toUpperCase();
+      }
+      if (picked) descInput.value = picked;
+    }
+    // NOTE: we intentionally do NOT call regenerate() here.
+    // The filename is only a weak hint — the final name is rendered by
+    // maybeFinalize() once OCR and vision have both completed.
+  }
+
+  function updateSubcatList() {
+    const cat = categorySel.value;
+    const prev = subcatInput.value;
+    subcatInput.innerHTML = '<option value="">Select subcategory…</option>';
+    if (cat && SUBCATS[cat]) {
+      SUBCATS[cat].forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        subcatInput.appendChild(opt);
+      });
+      subcatHelp.textContent = `${SUBCATS[cat].length} options available`;
+    } else {
+      subcatHelp.textContent = "Pick a category to see options.";
+    }
+    // Restore previous value if still valid, otherwise leave unselected
+    if (prev && Array.from(subcatInput.options).some(o => o.value === prev)) {
+      subcatInput.value = prev;
+    }
+  }
+
+  // Safely set subcategory — adds the option dynamically if it isn't in the current list
+  function setSubcat(value) {
+    if (!value) { subcatInput.value = ""; return; }
+    const exists = Array.from(subcatInput.options).some(o => o.value === value);
+    if (!exists) {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = value;
+      subcatInput.appendChild(opt);
+    }
+    subcatInput.value = value;
+  }
+
+  function sanitize(s) {
+    if (!s) return "";
+    return s.toUpperCase().replace(/[^A-Z0-9]+/g, "");
+  }
+
+  function regenerate() {
+    const cat = categorySel.value;
+    const sub = sanitize(subcatInput.value);
+    let desc = sanitize(descInput.value);
+    const lang = languageSel.value;
+
+    // Auto-fit description to keep total ≤ 30
+    if (cat && sub && lang && desc) {
+      const fixed = cat.length + 1 + sub.length + 1 + 1 + lang.length;
+      const maxDesc = MAX_LEN - fixed;
+      if (maxDesc <= 0) desc = "";
+      else if (desc.length > maxDesc) desc = desc.slice(0, maxDesc);
+    }
+
+    const parts = [cat, sub, desc, lang].filter(Boolean);
+    const name = parts.join("_");
+    // Only render a real name once Category, SubCategory and Description are filled.
+    // Showing a half-name like "NA" by itself looks like a bug — better to prompt the user.
+    const hasCore = cat && sub && desc;
+    if (hasCore) {
+      generated.textContent = name;
+      generated.classList.remove("empty");
+    } else if (cat || sub || desc || (lang && lang !== "NA")) {
+      // Some auto-detection landed but not enough — guide the user
+      generated.textContent = "Fill the remaining fields to generate a name";
+      generated.classList.add("empty");
+    } else if (lang === "NA") {
+      // Vision/OCR found nothing — be honest about it
+      generated.textContent = "Couldn't auto-detect — please pick category, subcategory & description";
+      generated.classList.add("empty");
+    } else {
+      generated.textContent = "Upload a template to generate a name";
+      generated.classList.add("empty");
+    }
+
+    const len = name.length;
+    counter.textContent = `${len} / ${MAX_LEN}`;
+    counter.classList.toggle("over", len > MAX_LEN);
+    counter.classList.toggle("warn", len > 25 && len <= MAX_LEN);
+
+    const errs = [];
+    if (cat && !VALID_CATEGORIES.includes(cat)) errs.push(`Invalid Category.`);
+    if (lang && !VALID_LANGS.includes(lang)) errs.push(`Invalid Language.`);
+    if (len > MAX_LEN) errs.push(`Exceeds ${MAX_LEN} chars by ${len - MAX_LEN}.`);
+    if (name && /[^A-Z0-9_]/.test(name)) errs.push("Only A–Z, 0–9, and _ allowed.");
+    const missing = [];
+    if (!cat) missing.push("Category");
+    if (!sub) missing.push("SubCategory");
+    if (!desc) missing.push("Description");
+    if (!lang) missing.push("Language");
+    if (name && missing.length) errs.push("Missing: " + missing.join(", "));
+    errorsEl.textContent = errs.join(" ");
+
+    const canCopy = cat && sub && desc && lang && len > 0 && len <= MAX_LEN && errs.length === 0;
+    copyBtn.disabled = !canCopy;
+  }
+
+  categorySel.addEventListener("change", () => { updateSubcatList(); regenerate(); });
+  subcatInput.addEventListener("input", regenerate);
+  descInput.addEventListener("input", regenerate);
+  languageSel.addEventListener("change", regenerate);
+
+  // Reset: clear all state so the page is ready for a new image
+  const resetBtn = document.getElementById("resetBtn");
+  resetBtn.addEventListener("click", () => {
+    // Invalidate any in-flight OCR / vision / Gemini runs
+    ocrRunId++;
+    visionRunId++;
+    geminiRunId++;
+
+    // Clear file input and preview
+    fileInput.value = "";
+    if (preview.src && preview.src.startsWith("blob:")) {
+      try { URL.revokeObjectURL(preview.src); } catch {}
+    }
+    preview.removeAttribute("src");
+    previewWrap.classList.remove("active");
+    fileName.textContent = "—";
+    fileDims.textContent = "—";
+
+    // Reset OCR status (and restore spinner in case we removed it earlier)
+    ocrStatus.classList.add("hidden");
+    ocrStatus.classList.remove("done");
+    if (!ocrStatus.querySelector(".spinner")) {
+      const sp = document.createElement("span");
+      sp.className = "spinner";
+      ocrStatus.insertBefore(sp, ocrStatus.firstChild);
+    }
+    ocrStatusText.textContent = "Detecting text…";
+
+    // Reset form fields
+    categorySel.value = "";
+    subcatInput.value = "";
+    descInput.value = "";
+    languageSel.value = "";
+
+    updateSubcatList();
+    regenerate();
+
+    // Scroll back to the top and focus the drop zone so it's obviously ready
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    drop.focus?.();
+  });
+
+  const copyLabel = document.getElementById("copyLabel");
+  copyBtn.addEventListener("click", async () => {
+    if (copyBtn.disabled) return;
+    const text = generated.classList.contains("empty") ? "" : generated.textContent;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); document.body.removeChild(ta);
+    }
+    copyLabel.textContent = "Copied!";
+    copyBtn.classList.add("copied");
+    setTimeout(() => { copyLabel.textContent = "Copy"; copyBtn.classList.remove("copied"); }, 1400);
+  });
+
+  // ----- Gemini API key UI wiring -----
+  const apiKeyToggle = document.getElementById("apiKeyToggle");
+  const apiKeyToggleLabel = document.getElementById("apiKeyToggleLabel");
+  const apiKeyPanel = document.getElementById("apiKeyPanel");
+  const apiKeyInput = document.getElementById("apiKeyInput");
+  const apiKeySave = document.getElementById("apiKeySave");
+  const apiKeyClear = document.getElementById("apiKeyClear");
+  const apiKeyMsg = document.getElementById("apiKeyMsg");
+
+  function refreshKeyToggle() {
+    const k = getGeminiKey();
+    if (k) {
+      apiKeyToggleLabel.textContent = "🔑 Gemini key set ✓";
+      apiKeyToggle.classList.add("has-key");
+    } else {
+      apiKeyToggleLabel.textContent = "🔑 Set up Gemini key";
+      apiKeyToggle.classList.remove("has-key");
+    }
+  }
+  function showKeyMsg(text, kind) {
+    apiKeyMsg.textContent = text || "";
+    apiKeyMsg.classList.remove("error", "ok");
+    if (kind) apiKeyMsg.classList.add(kind);
+  }
+
+  apiKeyToggle.addEventListener("click", () => {
+    apiKeyPanel.classList.toggle("open");
+    if (apiKeyPanel.classList.contains("open")) {
+      // Don't reveal an existing key — leave the field empty for safety
+      apiKeyInput.value = "";
+      showKeyMsg("");
+      apiKeyInput.focus();
+    }
+  });
+
+  apiKeySave.addEventListener("click", () => {
+    const k = (apiKeyInput.value || "").trim();
+    if (!k) { showKeyMsg("Please paste a key first.", "error"); return; }
+    if (!isLikelyGeminiKey(k)) {
+      showKeyMsg("That doesn't look like a Gemini key (should start with 'AIza' and be ≥34 chars).", "error");
+      return;
+    }
+    setGeminiKey(k);
+    refreshKeyToggle();
+    showKeyMsg("Saved. Upload a template to use Gemini.", "ok");
+    apiKeyInput.value = "";
+    setTimeout(() => apiKeyPanel.classList.remove("open"), 900);
+  });
+
+  apiKeyClear.addEventListener("click", () => {
+    clearGeminiKey();
+    refreshKeyToggle();
+    apiKeyInput.value = "";
+    showKeyMsg("Key cleared.", "ok");
+  });
+
+  apiKeyInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); apiKeySave.click(); }
+  });
+
+  refreshKeyToggle();
+
+  updateSubcatList();
+  regenerate();
+</script>
+</body>
+</html>
