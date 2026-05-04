@@ -138,103 +138,6 @@
   }
   .api-key-panel .key-msg.error { color: var(--bad); }
   .api-key-panel .key-msg.ok { color: var(--good); }
-
-  /* Duplicate-name warning chip (lives under the result errors) */
-  .dup-warn {
-    margin-top: 10px;
-    padding: 10px 12px;
-    background: rgba(251, 191, 36, 0.08);
-    border: 1px solid rgba(251, 191, 36, 0.25);
-    border-radius: 10px;
-    color: var(--warn);
-    font-size: 12px;
-    line-height: 1.5;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .dup-warn::before { content: "⚠"; font-size: 14px; line-height: 1; margin-top: 1px; }
-
-  /* Recent-names history */
-  .history {
-    margin-top: 14px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 4px 12px;
-  }
-  .history-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  .history-toggle {
-    flex: 1;
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 10px 0;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    letter-spacing: 0.02em;
-  }
-  .history-toggle:hover { color: var(--text); }
-  .history-toggle svg {
-    width: 14px;
-    height: 14px;
-    transition: transform 0.2s;
-  }
-  .history.open .history-toggle svg { transform: rotate(180deg); }
-  .history-clear {
-    background: none;
-    border: none;
-    color: var(--muted-2);
-    font-size: 11px;
-    font-family: inherit;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: color 0.15s, background 0.15s;
-  }
-  .history-clear:hover { color: var(--bad); background: rgba(248, 113, 113, 0.08); }
-  .history-list {
-    list-style: none;
-    margin: 0;
-    padding: 0 0 10px;
-    max-height: 220px;
-    overflow-y: auto;
-  }
-  .history-list li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 6px 0;
-    border-top: 1px solid var(--border);
-    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
-    font-size: 12px;
-    color: var(--text);
-  }
-  .history-list li:first-child { border-top: none; }
-  .history-list li .when { color: var(--muted-2); font-family: 'Inter', sans-serif; font-size: 11px; }
-  .history-list li .copy-mini {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .history-list li .copy-mini:hover { color: var(--text); border-color: var(--accent); }
   .logo {
     width: 40px;
     height: 40px;
@@ -747,18 +650,6 @@
             </div>
           </div>
           <div class="errors" id="errors"></div>
-          <div class="dup-warn" id="dupWarn" hidden></div>
-        </div>
-
-        <div class="history" id="historyCard">
-          <div class="history-head">
-            <button type="button" class="history-toggle" id="historyToggle">
-              <span id="historyToggleLabel">Recent names (0)</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="historyChevron"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <button type="button" class="history-clear" id="historyClear" hidden>Clear</button>
-          </div>
-          <ul class="history-list" id="historyList" hidden></ul>
         </div>
       </section>
     </div>
@@ -847,56 +738,6 @@
     return typeof k === "string" && /^AIza[A-Za-z0-9_-]{30,}$/.test(k.trim());
   }
 
-  // ----- History of generated names (per-browser, never shared) -----
-  const HISTORY_LS = "templateNamer.history";
-  const HISTORY_MAX = 200;
-
-  function getHistory() {
-    try {
-      const raw = localStorage.getItem(HISTORY_LS);
-      if (!raw) return [];
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [];
-    } catch { return []; }
-  }
-  function saveHistory(arr) {
-    try { localStorage.setItem(HISTORY_LS, JSON.stringify(arr.slice(0, HISTORY_MAX))); } catch {}
-  }
-  function addToHistory(name) {
-    if (!name) return;
-    const list = getHistory();
-    // Move-to-front if already present, otherwise prepend
-    const filtered = list.filter(e => e.name !== name);
-    filtered.unshift({ name, ts: Date.now() });
-    saveHistory(filtered);
-    renderHistory();
-  }
-  function clearHistory() {
-    try { localStorage.removeItem(HISTORY_LS); } catch {}
-    renderHistory();
-  }
-  function isInHistory(name) {
-    if (!name) return false;
-    return getHistory().some(e => e.name === name);
-  }
-  function recentDescriptions(n = 30) {
-    // Return the ShortDESC field of the most recent N names — used to nudge
-    // Gemini away from picking the same keyword for visually-similar images.
-    return getHistory().slice(0, n)
-      .map(e => (e.name || "").split("_")[2] || "")
-      .filter(Boolean);
-  }
-  function recentNames(n = 30) {
-    return getHistory().slice(0, n).map(e => e.name);
-  }
-  function formatRelative(ts) {
-    const sec = Math.floor((Date.now() - ts) / 1000);
-    if (sec < 60) return "just now";
-    if (sec < 3600) return Math.floor(sec / 60) + "m ago";
-    if (sec < 86400) return Math.floor(sec / 3600) + "h ago";
-    return Math.floor(sec / 86400) + "d ago";
-  }
-
   // ----- Gemini vision call -----
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -935,22 +776,10 @@ Return only the JSON object, no commentary.`;
     const base64 = await fileToBase64(file);
     const mime = file.type || "image/png";
 
-    // Tell Gemini what we've already used so it picks a *different* shortDesc
-    // for visually-similar images (avoids generating the same name twice).
-    const usedDescs = recentDescriptions(40);
-    const usedNames = recentNames(40);
-    let avoidanceText = "";
-    if (usedDescs.length) {
-      avoidanceText = `\n\nIMPORTANT — names already generated for previous templates (avoid repeating these exact full names; for similar images pick a DIFFERENT shortDesc):\n` +
-        `Recent shortDesc values used: ${usedDescs.join(", ")}\n` +
-        `Recent full names: ${usedNames.slice(0, 12).join(", ")}\n` +
-        `If this image is similar to a previous one, pick a more specific or different visual keyword for shortDesc so the resulting full name is unique.`;
-    }
-
     const body = {
       contents: [{
         parts: [
-          { text: GEMINI_PROMPT + avoidanceText },
+          { text: GEMINI_PROMPT },
           { inline_data: { mime_type: mime, data: base64 } },
         ],
       }],
@@ -1681,20 +1510,6 @@ Return only the JSON object, no commentary.`;
     if (name && missing.length) errs.push("Missing: " + missing.join(", "));
     errorsEl.textContent = errs.join(" ");
 
-    // Duplicate-name detection — show a friendly warning if this exact name
-    // is already in history. Doesn't block copy (sometimes you genuinely want
-    // to overwrite), but makes the collision obvious so you can edit the desc.
-    const dupWarn = document.getElementById("dupWarn");
-    if (hasCore && name && isInHistory(name)) {
-      const entry = getHistory().find(e => e.name === name);
-      const when = entry ? formatRelative(entry.ts) : "earlier";
-      dupWarn.textContent = `This name was already generated ${when}. Edit the Description field to make it unique, or copy anyway to overwrite.`;
-      dupWarn.hidden = false;
-    } else {
-      dupWarn.hidden = true;
-      dupWarn.textContent = "";
-    }
-
     const canCopy = cat && sub && desc && lang && len > 0 && len <= MAX_LEN && errs.length === 0;
     copyBtn.disabled = !canCopy;
   }
@@ -1761,9 +1576,6 @@ Return only the JSON object, no commentary.`;
     copyLabel.textContent = "Copied!";
     copyBtn.classList.add("copied");
     setTimeout(() => { copyLabel.textContent = "Copy"; copyBtn.classList.remove("copied"); }, 1400);
-
-    // Add to history so we can warn about duplicates and tell Gemini what's been used
-    addToHistory(text);
   });
 
   // ----- Gemini API key UI wiring -----
@@ -1827,78 +1639,6 @@ Return only the JSON object, no commentary.`;
   });
 
   refreshKeyToggle();
-
-  // ----- Recent-names history UI wiring -----
-  const historyCard = document.getElementById("historyCard");
-  const historyToggle = document.getElementById("historyToggle");
-  const historyToggleLabel = document.getElementById("historyToggleLabel");
-  const historyList = document.getElementById("historyList");
-  const historyClear = document.getElementById("historyClear");
-
-  function renderHistory() {
-    const list = getHistory();
-    historyToggleLabel.textContent = `Recent names (${list.length})`;
-    historyClear.hidden = list.length === 0;
-    if (!historyCard.classList.contains("open")) {
-      // List stays hidden until expanded
-      historyList.innerHTML = "";
-      historyList.hidden = true;
-      return;
-    }
-    historyList.innerHTML = "";
-    if (list.length === 0) {
-      const li = document.createElement("li");
-      li.style.color = "var(--muted-2)";
-      li.style.fontFamily = "Inter, sans-serif";
-      li.textContent = "No names copied yet — they'll show up here as you copy.";
-      historyList.appendChild(li);
-    } else {
-      for (const entry of list) {
-        const li = document.createElement("li");
-        const nameSpan = document.createElement("span");
-        nameSpan.textContent = entry.name;
-        const right = document.createElement("span");
-        right.style.display = "flex";
-        right.style.alignItems = "center";
-        right.style.gap = "8px";
-        const when = document.createElement("span");
-        when.className = "when";
-        when.textContent = formatRelative(entry.ts);
-        const btn = document.createElement("button");
-        btn.className = "copy-mini";
-        btn.type = "button";
-        btn.textContent = "Copy";
-        btn.addEventListener("click", async () => {
-          try { await navigator.clipboard.writeText(entry.name); }
-          catch {
-            const ta = document.createElement("textarea");
-            ta.value = entry.name; document.body.appendChild(ta); ta.select();
-            document.execCommand("copy"); document.body.removeChild(ta);
-          }
-          btn.textContent = "Copied";
-          setTimeout(() => { btn.textContent = "Copy"; }, 1200);
-        });
-        right.appendChild(when);
-        right.appendChild(btn);
-        li.appendChild(nameSpan);
-        li.appendChild(right);
-        historyList.appendChild(li);
-      }
-    }
-    historyList.hidden = false;
-  }
-
-  historyToggle.addEventListener("click", () => {
-    historyCard.classList.toggle("open");
-    renderHistory();
-  });
-  historyClear.addEventListener("click", () => {
-    if (!confirm("Clear all recent names from this browser? This cannot be undone.")) return;
-    clearHistory();
-  });
-
-  // Initial render so the count is correct on page load
-  renderHistory();
 
   updateSubcatList();
   regenerate();
