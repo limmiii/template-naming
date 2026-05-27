@@ -664,12 +664,157 @@
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
 <script>
   const SUBCATS = {
-    DW: ["GOODMORNING", "GOODEVENING", "GOODNIGHT"],
-    FE: ["SHIVRATRI", "DIWALI", "HOLI", "EID", "EKADASI", "CHRISTMAS", "NEWYEAR", "NAVRATRI", "DUSSEHRA", "RAKSHABANDHAN", "JANMASHTAMI", "GANESHCHATURTHI"],
-    OC: ["BIRTHDAY", "ANNIVERSARY", "WEDDING", "VALENTINE", "MOTHERSDAY", "FATHERSDAY", "FRIENDSHIP"],
-    DV: ["SHIV", "GANESH", "LAXMI", "VISHNU", "JESUS", "KRISHNA", "RAM", "HANUMAN", "DURGA", "SARASWATI"],
-    TE: ["IPL", "WORLDCUP", "ELECTIONS", "YOGADAY", "REPUBLICDAY", "INDEPENDENCEDAY", "NOTOBACCO", "EARTHDAY"],
-    QS: ["INSPIRATIONAL", "MOTIVATIONAL", "QUOTE", "STATUS"],
+    // Daily Wishes — recurring greetings tied to time-of-day, week, or feelings
+    DW: [
+      "GOODMORNING", "GOODAFTERNOON", "GOODEVENING", "GOODNIGHT", "SWEETDREAMS",
+      "HAPPYSUNDAY", "HAPPYMONDAY", "HAPPYTUESDAY", "HAPPYWEDNESDAY", "HAPPYTHURSDAY",
+      "HAPPYFRIDAY", "HAPPYSATURDAY", "HAPPYWEEKEND", "NEWWEEK", "NEWMONTH",
+      "BLESSEDDAY", "GETWELLSOON", "MISSYOU", "THINKINGOFYOU", "GOODLUCK",
+      "HAVEAGOODDAY", "STAYSAFE", "STAYBLESSED"
+    ],
+    // Festivals — Hindu, Muslim, Christian, Sikh, Jain, Buddhist, Parsi + regional
+    FE: [
+      // Major Hindu festivals
+      "DIWALI", "HOLI", "NAVRATRI", "DUSSEHRA", "RAKSHABANDHAN", "JANMASHTAMI",
+      "GANESHCHATURTHI", "SHIVRATRI", "MAHASHIVRATRI", "EKADASI", "KARWACHAUTH",
+      "MAKARSANKRANTI", "PONGAL", "ONAM", "BAISAKHI", "GUDIPADWA", "GURUPURNIMA",
+      "AKSHAYATRITIYA", "BASANTPANCHAMI", "CHHATPUJA", "LOHRI", "TEEJ",
+      "HARTALIKATEEJ", "HARIYALITEEJ", "HANUMANJAYANTI", "RAMNAVAMI",
+      "VATSAVITRI", "DHANTERAS", "BHAIDOOJ", "GOVARDHAN", "NARAKACHATURDASHI",
+      "NAGPANCHAMI", "KARTIKPURNIMA", "TULSIVIVAH", "GANGADUSSEHRA",
+      "RATHYATRA", "RADHASHTAMI", "ANNAKUT", "DEVDIWALI", "SHARADIYANAVRATRI",
+      "CHAITRANAVRATRI", "KUMBHMELA", "MAHAKUMBH", "SHRAVANSOMVAR",
+      "PURNIMA", "AMAVASYA", "VAIKUNTHEKADASHI", "NIRJALAEKADASHI",
+      "PITRUPAKSHA", "DURGAPUJA", "KALIPUJA", "VISHWAKARMAPUJA", "SARASWATIPUJA",
+      "LAKSHMIPUJA", "MAHALAKSHMI", "GOPASHTAMI", "RAMARANG",
+      // Regional Hindu
+      "BIHU", "POILABAISAKH", "UGADI", "VISHU", "BONALU", "BATHUKAMMA",
+      "KARTHIGAIDEEPAM", "ATTUKAL", "THRISSURPOORAM",
+      // Christian
+      "CHRISTMAS", "EASTER", "GOODFRIDAY", "PALMSUNDAY", "ASHWEDNESDAY",
+      "ALLSAINTSDAY", "ADVENT", "EPIPHANY", "PENTECOST",
+      // Muslim
+      "EID", "EIDULFITR", "EIDULADHA", "MUHARRAM", "RAMADAN", "MILADUNNABI",
+      "SHABEBARAT", "LAYLATULQADR",
+      // Sikh
+      "GURUNANAKJAYANTI", "GURUGOBINDSINGHJAYANTI", "PRAKASHPARV",
+      "GURUGRANTHSAHIB", "VAISAKHI",
+      // Jain
+      "MAHAVIRJAYANTI", "PARYUSHAN", "DASLAKSHANA",
+      // Buddhist
+      "BUDDHAPURNIMA", "BODHIDAY", "DHAMMACHAKRA",
+      // Parsi
+      "NAVROZE", "PATETI", "KHORDADSAL",
+      // Generic festive
+      "NEWYEAR"
+    ],
+    // Occasions — life events, personal milestones, ceremonies
+    OC: [
+      "BIRTHDAY", "ANNIVERSARY", "WEDDING", "VALENTINE", "MOTHERSDAY", "FATHERSDAY",
+      "FRIENDSHIP", "FRIENDSHIPDAY", "ENGAGEMENT", "GRADUATION", "FAREWELL",
+      "RETIREMENT", "HOUSEWARMING", "BABYSHOWER", "PROMOTION", "NEWBORN",
+      // Hindu life rituals
+      "NAMKARAN", "MUNDAN", "GRIHAPRAVESH", "JANEU", "ANNAPRASHAN",
+      "GODHBHARAI", "BIDAI", "VIDAI", "TILAK",
+      // Wedding sub-events
+      "ROKA", "SANGEET", "MEHENDI", "HALDI", "RECEPTION", "BARAAT",
+      "PHEREEDDING", "VARMALA", "GATHBANDHAN",
+      // Career
+      "BUSINESSOPENING", "SHOPOPENING", "JOBJOIN", "JOBOFFER", "FIRSTSALARY",
+      "BUSINESSANNIVERSARY",
+      // Achievement
+      "EXAMSUCCESS", "RESULT", "SUCCESS", "ACHIEVEMENT", "AWARD", "VICTORY",
+      "BOARDEXAM",
+      // Relationships
+      "PROPOSAL", "FIRSTLOVE", "MAKEUP", "APOLOGY", "THANKYOU", "CONGRATS",
+      "WELCOME",
+      // Family days
+      "SIBLINGSDAY", "DAUGHTERSDAY", "SONSDAY", "GRANDPARENTSDAY", "PARENTSDAY",
+      "FAMILYDAY",
+      // Social
+      "GETTOGETHER", "REUNION", "ANNUALDAY", "FRESHERS"
+    ],
+    // Deities — across major Indian and global religions
+    DV: [
+      // Hindu Trimurti and major gods
+      "SHIV", "MAHADEV", "VISHNU", "BRAHMA",
+      // Hindu goddesses
+      "DURGA", "KALI", "LAXMI", "LAKSHMI", "MAHALAKSHMI", "SARASWATI", "PARVATI",
+      "RADHA", "SITA", "RUKMINI", "ANNAPURNA", "MEENAKSHI", "GAYATRI",
+      "GANGA", "TARA", "BHAVANI", "SANTOSHIMAA",
+      // Vishnu's avatars
+      "KRISHNA", "RAM", "RAMA", "NARASIMHA", "VAMANA", "MATSYA", "VARAHA",
+      "PARASHURAM", "KOORMA",
+      // Shiva family
+      "GANESH", "GANESHA", "GANPATI", "KARTIKEYA", "MURUGAN", "AYYAPPA",
+      // Devotional / monkey / regional
+      "HANUMAN", "JAGANNATH", "BALAJI", "VENKATESHWARA", "TIRUPATI",
+      "VITHOBA", "GURUVAYOORAPPAN", "NATARAJA", "ARDHANARI",
+      // Modern saints
+      "SAIBABA", "SHIRDIBABA", "OSHO", "RAMAKRISHNA", "VIVEKANANDA",
+      // Vedic devatas & graha
+      "KUBERA", "INDRA", "SURYA", "SURYADEV", "CHANDRA", "AGNI", "YAMA", "VARUN",
+      "SHANIDEV",
+      // Christian
+      "JESUS", "MARY", "MOTHERTERESA",
+      // Muslim
+      "ALLAH",
+      // Sikh
+      "GURUNANAK", "GURUGOBINDSINGH", "GURUTEGBAHADUR", "GURUARJUN",
+      // Jain
+      "MAHAVIRA", "BAHUBALI", "TIRTHANKARA",
+      // Buddhist
+      "BUDDHA"
+    ],
+    // Themes / Events — national days, awareness days, sports, seasons
+    TE: [
+      // Indian national / freedom-movement
+      "REPUBLICDAY", "INDEPENDENCEDAY", "GANDHIJAYANTI", "NEHRUJAYANTI",
+      "AMBEDKARJAYANTI", "BHAGATSINGHJAYANTI", "NETAJIJAYANTI",
+      "SHIVAJIJAYANTI", "PATELJAYANTI", "MARTYRSDAY",
+      // Armed forces
+      "ARMYDAY", "AIRFORCEDAY", "NAVYDAY", "KARGILDIWAS",
+      // Indian observances
+      "NATIONALSCIENCEDAY", "EDUCATIONDAY", "NATIONALYOUTH", "NATIONALSPORTS",
+      "HANDLOOMDAY", "KISANDAY", "ENGINEERSDAY", "STATISTICSDAY",
+      "HINDIDIWAS", "READINGDAY", "VOTERSDAY",
+      // International days
+      "WOMENSDAY", "CHILDRENSDAY", "TEACHERSDAY", "DOCTORSDAY", "NURSESDAY",
+      "HEALTHDAY", "ENVIRONMENTDAY", "MUSICDAY", "PEACEDAY", "LITERACYDAY",
+      "POPULATIONDAY", "WATERDAY", "EARTHDAY", "OZONEDAY", "WILDLIFEDAY",
+      "FORESTDAY", "OCEANSDAY", "TOURISMDAY", "FOODDAY", "POSTDAY",
+      // Health / awareness
+      "DIABETESDAY", "AIDSDAY", "CANCERDAY", "MENTALHEALTH", "ALZHEIMERS",
+      "AUTISM", "BLOODDONATION", "BREASTCANCER", "HEARTDAY", "POLIODAY",
+      "TBDAY", "MALARIADAY", "HEPATITISDAY", "ORGANDONATION", "NOTOBACCO",
+      "DRUGSDAY", "DISABILITY",
+      // Human rights / social
+      "HUMANRIGHTS", "REFUGEE", "JUSTICE", "DEMOCRACY", "PRESSFREEDOM",
+      "TOLERANCE", "FAMILIES",
+      // Yoga / fitness
+      "YOGADAY", "WALKINGDAY", "RUNNINGDAY", "FITNESSDAY",
+      // Sports / cricket
+      "IPL", "WORLDCUP", "T20WORLDCUP", "OLYMPICS", "ASIANGAMES",
+      "COMMONWEALTH", "CRICKET", "FOOTBALL", "KABADDI", "WRESTLING",
+      // Civic
+      "ELECTIONS", "VOTING", "CENSUS",
+      // Seasons / weather
+      "SUMMER", "MONSOON", "WINTER", "SPRING", "AUTUMN", "FIRSTRAIN", "SNOWFALL"
+    ],
+    // Quotes / Status — moods, themes, content types for social posts
+    QS: [
+      "INSPIRATIONAL", "MOTIVATIONAL", "QUOTE", "STATUS",
+      "AESTHETIC", "MOOD", "ATTITUDE", "LOVE", "SAD", "HAPPY", "ANGRY",
+      "ROMANTIC", "FUNNY", "SAVAGE", "FLIRTY", "NOSTALGIC", "GRATEFUL",
+      "HOPEFUL", "PEACEFUL", "REFLECTIVE", "EMOTIONAL", "DEEP", "POETRY",
+      "SHAYARI", "SUFI", "DEVOTIONAL", "PHILOSOPHY", "WISDOM",
+      "LIFE", "DREAMS", "GOALS", "SUCCESS", "FAILURE", "STRUGGLE",
+      "FAITH", "TRUST", "GOD", "PRAYER",
+      "FRIENDSHIP", "FAMILY", "RELATIONSHIPS", "BROKENHEART", "HEALING",
+      "SELFLOVE", "CONFIDENCE", "FEARLESS",
+      "GAMING", "FITNESS", "FOODIE", "TRAVEL", "TRAVELLER", "WANDERLUST",
+      "BIRTHDAYWISH", "ANNIVERSARYWISH"
+    ],
   };
   const VALID_CATEGORIES = Object.keys(SUBCATS);
   const VALID_LANGS = ["HI","EN","NA"];
@@ -738,6 +883,60 @@
     return typeof k === "string" && /^AIza[A-Za-z0-9_-]{30,}$/.test(k.trim());
   }
 
+  // ----- Name history + silent duplicate resolution -----
+  // Names go into history ONLY when the user clicks Copy (i.e. the name is
+  // actually being used). The history then drives:
+  //   1. The avoidance hint passed to Gemini (so it picks DIFFERENT shortDesc
+  //      for visually-similar uploads where possible).
+  //   2. Auto-suffixing the shortDesc if the final assembled name still
+  //      collides (MEDITATION → MEDITATION2 → MEDITATION3 …).
+  // No UI surfaces — this is purely a backend feature so we never re-create
+  // the "empty amber chip" CSS bug from the previous attempt.
+  const HISTORY_LS = "templateNamer.history";
+  const HISTORY_MAX = 200;
+  function getHistory() {
+    try {
+      const raw = localStorage.getItem(HISTORY_LS);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+  function addToHistory(name) {
+    if (!name) return;
+    const list = getHistory().filter(n => n !== name);
+    list.unshift(name);
+    try { localStorage.setItem(HISTORY_LS, JSON.stringify(list.slice(0, HISTORY_MAX))); } catch {}
+  }
+  function recentShortDescs(n = 20) {
+    return getHistory().slice(0, n).map(name => (name || "").split("_")[2] || "").filter(Boolean);
+  }
+
+  // Given the four name components, return a unique full name (and unique desc)
+  // by suffixing the shortDesc with 2, 3, 4… until we find a name not in history.
+  // The base shortDesc is trimmed if needed so the total stays ≤ MAX_LEN.
+  function uniquifyName(cat, sub, desc, lang) {
+    const base = [cat, sub, desc, lang].filter(Boolean).join("_");
+    const history = new Set(getHistory());
+    if (!history.has(base)) return { name: base, desc };
+
+    // fixed = cat + "_" + sub + "_" + "_" + lang  (the underscores around desc
+    // are 2; the underscore between cat and sub and between sub and desc are
+    // captured implicitly here)
+    const fixed = cat.length + 1 + sub.length + 1 + 1 + lang.length;
+    let n = 2;
+    while (n < 999) {
+      const suffix = String(n);
+      const maxDescLen = MAX_LEN - fixed - suffix.length;
+      const trimmedDesc = desc.slice(0, Math.max(0, maxDescLen));
+      const newDesc = trimmedDesc + suffix;
+      const candidate = [cat, sub, newDesc, lang].filter(Boolean).join("_");
+      if (!history.has(candidate)) return { name: candidate, desc: newDesc };
+      n++;
+    }
+    return { name: base, desc };
+  }
+
   // ----- Gemini vision call -----
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -753,21 +952,43 @@
     });
   }
 
-  const GEMINI_PROMPT = `You analyse Indian-context greeting / devotional / festival template images. Return JSON with these fields:
+  // Build the subcategory listing for the prompt directly from SUBCATS so the two
+  // can never drift apart. Adding a new festival/deity to SUBCATS automatically
+  // shows up in Gemini's prompt on the next request.
+  function buildSubcatListing() {
+    return Object.entries(SUBCATS)
+      .map(([cat, list]) => `  ${cat} = [${list.join(", ")}]`)
+      .join("\n");
+  }
 
-- category: one of DW (daily wishes), FE (festivals), OC (occasions), DV (deities), TE (themes/events), QS (quotes/status).
-- subcategory: one of the valid subcategories for that category. Valid lists:
-  DW = [GOODMORNING, GOODEVENING, GOODNIGHT]
-  FE = [SHIVRATRI, DIWALI, HOLI, EID, EKADASI, CHRISTMAS, NEWYEAR, NAVRATRI, DUSSEHRA, RAKSHABANDHAN, JANMASHTAMI, GANESHCHATURTHI]
-  OC = [BIRTHDAY, ANNIVERSARY, WEDDING, VALENTINE, MOTHERSDAY, FATHERSDAY, FRIENDSHIP]
-  DV = [SHIV, GANESH, LAXMI, VISHNU, JESUS, KRISHNA, RAM, HANUMAN, DURGA, SARASWATI]
-  TE = [IPL, WORLDCUP, ELECTIONS, YOGADAY, REPUBLICDAY, INDEPENDENCEDAY, NOTOBACCO, EARTHDAY]
-  QS = [INSPIRATIONAL, MOTIVATIONAL, QUOTE, STATUS]
-  Pick the most specific match. If the image clearly shows e.g. Lord Shiva, use DV / SHIV.
-- shortDesc: ONE uppercase keyword 4 to 14 letters describing the visual content (examples: SUNRISE, LOTUS, TEMPLE, MEDITATION, FIREWORKS, ROSES, CANDLES, BLESSINGS). A-Z only, no spaces, no digits, no punctuation. Pick something specific to what's actually visible in this image.
-- language: "EN" if any English text is embossed/written on the image, "HI" if any Hindi/Devanagari text, "NA" if no readable text at all. If both English and Hindi are present, pick the dominant one.
+  const GEMINI_PROMPT = `You analyse Indian-context greeting / devotional / festival template images. Return JSON with ALL FOUR fields populated. Never leave any field blank.
 
-Return only the JSON object, no commentary.`;
+- category: MUST be exactly one of DW (daily wishes), FE (festivals), OC (occasions), DV (deities), TE (themes/events), QS (quotes/status). If nothing else fits, use QS as the catch-all for generic / motivational / status / text-only images.
+
+- subcategory: This field is the IDENTITY of the template — WHICH specific deity, festival, occasion, day, or mood it is about. It is NOT the visual setting (don't use "TEMPLE", "ALTAR", "IDOL" here — those go in shortDesc).
+  Step 1: Look at the image and identify WHICH deity / festival / occasion / day it depicts. For example: is this Sai Baba? Lord Shiva? A Diwali greeting? A birthday card?
+  Step 2: Find the matching entry in the lists below. The lists are very comprehensive — for any common Indian-context template, the right value IS already on the list. Use the exact spelling shown.
+${buildSubcatListing()}
+  Step 3: ONLY if you have searched the relevant list carefully and the specific identity is genuinely missing (e.g. a niche regional festival or local deity not listed), invent a new subcategory as a SINGLE uppercase word, 4-18 chars, A-Z only, no spaces, no digits, no punctuation.
+  WRONG examples (do not do this):
+  - Image shows Sai Baba seated in a temple → subcategory="TEMPLE" ❌ (TEMPLE is the setting; the IDENTITY is Sai Baba). CORRECT: subcategory="SAIBABA"
+  - Image shows Lord Shiva with a trident → subcategory="TRIDENT" ❌. CORRECT: subcategory="SHIV"
+  - Image shows Lakshmi with lotus flowers → subcategory="LOTUS" ❌. CORRECT: subcategory="LAKSHMI"
+
+- shortDesc: ONE uppercase keyword 4 to 14 letters describing the VISUAL SETTING / decoration / mood of the image. This is the place for things like the location, surrounding objects, and atmosphere — NOT the identity. Examples: TEMPLE, IDOL, ALTAR, SUNRISE, LOTUS, MEDITATION, FIREWORKS, ROSES, CANDLES, BLESSINGS, MOON, GARLAND, DIYA, INCENSE, FOREST, DURBAR, AARTI.
+  Step 1: Look at where the figure is, what's around them, what colours/mood dominate.
+  Step 2: Pick ONE keyword that names that visual element.
+  CRITICAL: shortDesc MUST NOT repeat the subcategory or be a synonym/alternate spelling of it. Example of WRONG output: subcategory="EKADASI", shortDesc="EKADASHI" — that's the same word twice. Example of CORRECT output: subcategory="EKADASI", shortDesc="LOTUS" (because the image shows lotus flowers).
+  A-Z only, no spaces, no digits, no punctuation.
+
+- language: Look CAREFULLY at the whole image for any text — even small text in corners, watermarked text, stylised text, or text inside decorative borders. Return:
+  - "HI" if you see ANY Devanagari script characters (the script used to write Hindi, Sanskrit, Marathi — characters like शुभ, हर, ॐ, राम)
+  - "EN" if you see ANY Latin/Roman letters forming readable text (English words, or transliterated Hindi like "Shubh", "Diwali", "Om")
+  - "NA" only if you are completely certain there is NO readable text anywhere in the image
+  - If both Devanagari and Latin text appear, pick whichever is more prominent / takes more space
+  When in doubt between NA and EN/HI, pick EN or HI. NA should be the last resort.
+
+Return only the JSON object, no commentary, no markdown fences.`;
 
   async function analyzeWithGemini(file) {
     const key = getGeminiKey();
@@ -776,10 +997,18 @@ Return only the JSON object, no commentary.`;
     const base64 = await fileToBase64(file);
     const mime = file.type || "image/png";
 
+    // Nudge Gemini to pick a DIFFERENT shortDesc keyword when we've seen
+    // similar images recently. Auto-suffixing (uniquifyName) is just a safety
+    // net; getting a genuinely different keyword from Gemini is the better outcome.
+    const recent = recentShortDescs(20);
+    const avoidanceText = recent.length
+      ? `\n\nFor shortDesc: avoid these recently-used keywords if the image content allows a different choice: ${recent.join(", ")}. If the visual content clearly matches one of them, use it anyway — duplicates will be auto-resolved.`
+      : "";
+
     const body = {
       contents: [{
         parts: [
-          { text: GEMINI_PROMPT },
+          { text: GEMINI_PROMPT + avoidanceText },
           { inline_data: { mime_type: mime, data: base64 } },
         ],
       }],
@@ -836,14 +1065,45 @@ Return only the JSON object, no commentary.`;
     };
   }
 
+  // Words that describe a visual SETTING — never a valid subcategory (which is supposed
+  // to be an IDENTITY: a deity, festival, occasion, day, mood). If Gemini puts one of
+  // these in subcategory, we refuse it and move the value over to shortDesc instead.
+  const SETTING_WORDS = new Set([
+    "TEMPLE", "MANDIR", "ALTAR", "SHRINE", "IDOL", "STATUE", "MURTI", "DOME",
+    "CHURCH", "MOSQUE", "GURUDWARA", "PAGODA",
+    "LOTUS", "FLOWERS", "FLOWER", "GARLAND", "MALA", "ROSES", "MARIGOLD",
+    "DIYA", "CANDLES", "CANDLE", "LAMP", "LAMPS", "INCENSE", "AARTI",
+    "TRIDENT", "CHAKRA", "OM", "SWASTIK", "SHANKH", "CONCH", "BELL",
+    "THRONE", "SEAT", "ASANA", "ROBE", "CROWN", "JEWELRY", "CROWN",
+    "FOREST", "MOUNTAIN", "RIVER", "OCEAN", "BEACH", "SKY", "CLOUDS",
+    "SUNRISE", "SUNSET", "MOON", "STARS", "NIGHT",
+    "DURBAR", "SABHA", "COURT", "PALACE",
+    "BACKGROUND", "DECORATION", "BORDER", "FRAME",
+    "MEDITATION", "PRAYER", "BLESSINGS", "AURA", "HALO", "GLOW", "LIGHT",
+    "BIRD", "PEACOCK", "COW", "BULL", "SNAKE", "TIGER", "LION",
+  ]);
+
   function applyGeminiResult(r) {
     const validCat = VALID_CATEGORIES.includes(r.category);
     if (validCat) {
       categorySel.value = r.category;
       updateSubcatList();
     }
-    if (r.subcategory) setSubcat(r.subcategory);
-    if (r.shortDesc) descInput.value = r.shortDesc;
+
+    // Reject setting-words in subcategory (TEMPLE, IDOL, LOTUS, etc.) — these belong
+    // in shortDesc, not in the identity slot. When this happens we leave subcat empty
+    // so the user picks the actual deity/festival manually, and we move the rejected
+    // value into shortDesc if shortDesc is empty.
+    let sub = (r.subcategory || "").toUpperCase();
+    let desc = (r.shortDesc || "").toUpperCase();
+    if (sub && SETTING_WORDS.has(sub)) {
+      console.warn(`Gemini returned setting-word "${sub}" as subcategory — moving to shortDesc.`);
+      if (!desc) desc = sub;     // borrow the rejected value as shortDesc only if empty
+      sub = "";                  // force user to pick the actual identity
+    }
+
+    if (sub) setSubcat(sub);
+    if (desc) descInput.value = desc;
     if (VALID_LANGS.includes(r.language)) languageSel.value = r.language;
 
     // Status chip shows the result
@@ -988,7 +1248,9 @@ Return only the JSON object, no commentary.`;
     [/moon|planetarium|observatory|starr?y|night\s*sky/, "DW", "GOODNIGHT"],
     [/lotus|water lily/, "DV", "LAXMI"],
     [/candle|jack-o'-lantern|lantern|diya/, "DV", "SHIV"],
-    [/altar|church|monastery|mosque|stupa|temple|pagoda|shrine|dome/, "DV", "TEMPLE"],
+    // Temple/altar/mosque etc. — hint at the DV category but DO NOT guess a subcategory.
+    // TEMPLE is a setting, not a deity identity; leave the subcat empty so the user picks.
+    [/altar|church|monastery|mosque|stupa|temple|pagoda|shrine|dome/, "DV", ""],
     [/fire\s*screen|fireworks|sparkler/, "FE", "DIWALI"],
     [/bride|groom|wedding\s*gown/, "OC", "WEDDING"],
     [/cake|birthday/, "OC", "BIRTHDAY"],
@@ -1472,11 +1734,17 @@ Return only the JSON object, no commentary.`;
     }
 
     const parts = [cat, sub, desc, lang].filter(Boolean);
-    const name = parts.join("_");
+    let name = parts.join("_");
     // Only render a real name once Category, SubCategory and Description are filled.
     // Showing a half-name like "NA" by itself looks like a bug — better to prompt the user.
     const hasCore = cat && sub && desc;
     if (hasCore) {
+      // Silently disambiguate against history — if this exact name was copied
+      // before, append a numeric suffix to the description (MEDITATION→MEDITATION2).
+      // The Description field itself is NOT rewritten; we only adjust the displayed
+      // + copied name, so the user can still see / edit the original keyword.
+      const uniq = uniquifyName(cat, sub, desc, lang);
+      name = uniq.name;
       generated.textContent = name;
       generated.classList.remove("empty");
     } else if (cat || sub || desc || (lang && lang !== "NA")) {
@@ -1576,6 +1844,15 @@ Return only the JSON object, no commentary.`;
     copyLabel.textContent = "Copied!";
     copyBtn.classList.add("copied");
     setTimeout(() => { copyLabel.textContent = "Copy"; copyBtn.classList.remove("copied"); }, 1400);
+
+    // Record this name in history so future identical uploads get auto-suffixed
+    // (MEDITATION2, MEDITATION3…) and Gemini gets told to avoid these keywords.
+    addToHistory(text);
+
+    // Re-run regenerate so the displayed name updates immediately to the next
+    // suffix variant — otherwise the user could click Copy twice in a row and
+    // get the same string both times.
+    regenerate();
   });
 
   // ----- Gemini API key UI wiring -----
