@@ -318,6 +318,91 @@
   .field .help { font-size: 11px; color: var(--muted-2); margin-top: 6px; line-height: 1.5; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+  /* Searchable combobox (used for subcategory) — input + filtered dropdown list */
+  .combobox { position: relative; }
+  .combobox-input {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 11px 38px 11px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  .combobox-input::placeholder { color: var(--muted-2); }
+  .combobox-input:focus {
+    border-color: var(--accent);
+    background: var(--panel-3);
+    box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
+  }
+  .combobox-toggle {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    bottom: 4px;
+    width: 34px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background 0.15s, transform 0.2s;
+  }
+  .combobox-toggle:hover { color: var(--text); background: var(--panel-3); }
+  .combobox-toggle svg { width: 14px; height: 14px; }
+  .combobox.open .combobox-toggle svg { transform: rotate(180deg); }
+  .combobox-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--panel-solid);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    z-index: 50;
+  }
+  .combobox-list li {
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .combobox-list li:hover,
+  .combobox-list li.active { background: rgba(124, 92, 255, 0.15); color: var(--accent-2); }
+  .combobox-list li .badge-new {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted-2);
+    background: var(--panel-3);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .combobox-list li.empty {
+    color: var(--muted-2);
+    cursor: default;
+    font-style: italic;
+  }
+  .combobox-list li.empty:hover { background: transparent; color: var(--muted-2); }
+
   /* Result */
   .result {
     margin-top: 22px;
@@ -443,7 +528,292 @@
   }
   .reset-btn:active { transform: translateY(1px); }
 
-  .btn-group { display: inline-flex; gap: 8px; }
+  /* Download button shares the secondary-action style with reset-btn */
+  .download-btn {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: 0.01em;
+  }
+  .download-btn svg { width: 14px; height: 14px; }
+  .download-btn:hover:not(:disabled) {
+    color: var(--accent-2);
+    border-color: rgba(124, 92, 255, 0.4);
+    background: rgba(124, 92, 255, 0.08);
+  }
+  .download-btn:active:not(:disabled) { transform: translateY(1px); }
+  .download-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-group { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Batch results card — shown when multiple files are uploaded at once */
+  .batch-card { margin-top: 20px; }
+  .batch-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .batch-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  /* Bulk-apply bar — under the main toolbar */
+  .batch-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .bulk-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+    padding-right: 10px;
+    border-right: 1px solid var(--border);
+  }
+  .bulk-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .bulk-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    flex-wrap: wrap;
+  }
+  .bulk-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .batch-bulk select {
+    background: var(--panel-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    min-width: 130px;
+    max-width: 200px;
+  }
+  .batch-bulk select:disabled { opacity: 0.4; cursor: not-allowed; }
+  #bulkApply { font-weight: 600; }
+  #bulkApply:not(:disabled) {
+    color: var(--accent-2);
+    border-color: rgba(124, 92, 255, 0.4);
+    background: rgba(124, 92, 255, 0.08);
+  }
+
+  .batch-row {
+    display: grid;
+    grid-template-columns: 28px 56px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .batch-row .row-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .batch-row .row-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .batch-row.selected { background: rgba(124, 92, 255, 0.06); border-color: rgba(124, 92, 255, 0.25); }
+  .batch-row.done { border-color: rgba(52, 211, 153, 0.2); }
+  .batch-row.failed { border-color: rgba(248, 113, 113, 0.25); background: rgba(248, 113, 113, 0.04); }
+  .batch-thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #000;
+    border: 1px solid var(--border);
+  }
+  .batch-meta { min-width: 0; }
+  .batch-filename {
+    font-size: 11px;
+    color: var(--muted-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .batch-name {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    background: linear-gradient(90deg, #a78bfa 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-top: 2px;
+    word-break: break-all;
+    cursor: text;
+    border-bottom: 1px dashed transparent;
+    transition: border-color 0.15s;
+  }
+  .batch-name:not(.pending):not(.failed):hover {
+    border-bottom-color: rgba(124, 92, 255, 0.3);
+  }
+  .batch-name.editing {
+    background: var(--panel-3);
+    -webkit-text-fill-color: var(--text);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 4px 8px;
+    outline: none;
+    border-bottom-style: solid;
+  }
+  .batch-name.pending {
+    background: none;
+    -webkit-text-fill-color: var(--muted);
+    color: var(--muted);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .batch-name.failed {
+    background: none;
+    -webkit-text-fill-color: var(--bad);
+    color: var(--bad);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 12px;
+  }
+  .batch-row .row-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .batch-row button.row-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .batch-row button.row-btn:hover:not(:disabled) {
+    color: var(--accent-2);
+    border-color: rgba(124, 92, 255, 0.4);
+    background: rgba(124, 92, 255, 0.06);
+  }
+  .batch-row button.row-btn svg { width: 11px; height: 11px; }
+  .batch-row button.row-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  @media (max-width: 600px) {
+    .batch-row { grid-template-columns: 28px 48px 1fr; }
+    .batch-row .row-actions { grid-column: 1 / -1; }
+  }
+
+  /* Per-row edit form — expands below the row to fix fields */
+  .batch-row.editing { background: var(--panel-3); }
+  .batch-edit-form {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+    padding: 14px 4px 4px;
+    margin-top: 6px;
+    border-top: 1px dashed var(--border-strong);
+  }
+  .batch-edit-form .field-mini { display: flex; flex-direction: column; gap: 4px; }
+  .batch-edit-form label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .batch-edit-form input,
+  .batch-edit-form select {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+  }
+  .batch-edit-form input:focus,
+  .batch-edit-form select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(124, 92, 255, 0.18);
+  }
+  .batch-edit-form .field-mini.full { grid-column: 1 / -1; }
+  .batch-edit-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+  .batch-edit-actions button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .batch-edit-actions button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .batch-edit-actions button:hover { color: var(--text); border-color: var(--border-strong); }
+  .batch-edit-actions button.primary:hover { background: #6e4eee; border-color: #6e4eee; color: white; }
 
   .errors {
     margin-top: 12px;
@@ -561,7 +931,7 @@
           <span class="badge">Preview</span>
         </h2>
         <label class="drop" id="drop">
-          <input type="file" id="file" accept="image/*,.png,.jpg,.jpeg" />
+          <input type="file" id="file" accept="image/*,.png,.jpg,.jpeg" multiple />
           <div class="drop-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -608,9 +978,24 @@
 
         <div class="field">
           <label for="subcategory">SubCategory</label>
-          <select id="subcategory">
-            <option value="">Select subcategory…</option>
-          </select>
+          <div class="combobox" id="subcatCombo">
+            <input
+              type="text"
+              id="subcategory"
+              class="combobox-input"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Type to search subcategories…"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="subcatListBox"
+            />
+            <button type="button" class="combobox-toggle" id="subcatToggle" tabindex="-1" aria-label="Show all options">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <ul class="combobox-list" id="subcatListBox" role="listbox" hidden></ul>
+          </div>
           <div class="help" id="subcatHelp">Pick a category to see options.</div>
         </div>
 
@@ -643,6 +1028,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 10 9 10"/></svg>
                 New Template
               </button>
+              <button class="download-btn" id="downloadBtn" type="button" disabled title="Download the original image renamed to the generated filename">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download
+              </button>
               <button class="copy-btn" id="copyBtn" disabled>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 <span id="copyLabel">Copy</span>
@@ -654,6 +1043,59 @@
       </section>
     </div>
 
+    <!-- Batch results — shown when the user uploads 2+ files at once -->
+    <section class="card batch-card" id="batchCard" hidden>
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Batch Results
+        <span class="badge" id="batchProgress">0 / 0</span>
+      </h2>
+      <div class="batch-toolbar">
+        <button type="button" class="reset-btn" id="batchDownloadAll" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download all (.zip)
+        </button>
+        <button type="button" class="reset-btn" id="batchCopyAll" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy all names
+        </button>
+        <button type="button" class="reset-btn" id="batchClear" style="margin-left:auto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Clear
+        </button>
+      </div>
+
+      <!-- Bulk-apply bar: when many rows share the same category/subcategory,
+           select them and apply the fix in one click. Description + Language
+           stay as Gemini auto-detected (per row). -->
+      <div class="batch-bulk">
+        <label class="bulk-checkbox">
+          <input type="checkbox" id="batchSelectAll" />
+          <span id="batchSelectAllLabel">Select all</span>
+        </label>
+        <div class="bulk-controls">
+          <span class="bulk-label">Apply to selected:</span>
+          <select id="bulkCat">
+            <option value="">Category…</option>
+            <option value="DW">DW — Daily Wishes</option>
+            <option value="FE">FE — Festivals</option>
+            <option value="OC">OC — Occasions</option>
+            <option value="DV">DV — Devotional</option>
+            <option value="TE">TE — Themes/Events</option>
+            <option value="QS">QS — Quotes/Status</option>
+          </select>
+          <select id="bulkSub" disabled>
+            <option value="">Subcategory…</option>
+          </select>
+          <button type="button" class="reset-btn" id="bulkApply" disabled>
+            Apply to <span id="bulkApplyCount">0</span>
+          </button>
+        </div>
+      </div>
+
+      <ul class="batch-list" id="batchList"></ul>
+    </section>
+
     <footer>
       Format: <code>[Category]_[SubCategory]_ShortDESC_[Language]</code> · Max 30 chars · Underscores only · ASCII only
     </footer>
@@ -662,6 +1104,8 @@
 <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
+<!-- JSZip for "Download all as .zip" in batch mode -->
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
   const SUBCATS = {
     // Daily Wishes — recurring greetings tied to time-of-day, week, or feelings
@@ -836,6 +1280,7 @@
   const generated = $("generated");
   const counter = $("counter");
   const copyBtn = $("copyBtn");
+  const downloadBtn = $("downloadBtn");
   const errorsEl = $("errors");
   const ocrStatus = $("ocrStatus");
   const ocrStatusText = $("ocrStatusText");
@@ -847,13 +1292,26 @@
   ["dragleave", "drop"].forEach(ev =>
     drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("dragover"); })
   );
+  // Route uploaded files: 1 file → single-image flow; 2+ → batch processing
+  function routeFiles(fileList) {
+    const files = Array.from(fileList || []).filter(f => f && f.type && f.type.startsWith("image/"));
+    if (files.length === 0) return;
+    if (files.length === 1) {
+      // Single-image mode — hide batch card if it was open
+      batchCard.hidden = true;
+      handleFile(files[0]);
+    } else {
+      // Batch mode — hide single-image preview, show batch list
+      previewWrap.classList.remove("active");
+      currentFile = null;
+      processBatch(files);
+    }
+  }
   drop.addEventListener("drop", (e) => {
-    const f = e.dataTransfer.files && e.dataTransfer.files[0];
-    if (f) handleFile(f);
+    routeFiles(e.dataTransfer.files);
   });
   fileInput.addEventListener("change", (e) => {
-    const f = e.target.files && e.target.files[0];
-    if (f) handleFile(f);
+    routeFiles(e.target.files);
   });
 
   // Tracks whether OCR / vision have each completed for the current file,
@@ -938,6 +1396,63 @@
   }
 
   // ----- Gemini vision call -----
+  // Resize before sending to Gemini — vision models don't need full res, and a smaller
+  // image cuts the upload by ~5x and the response time by 2-3 seconds. Quality of
+  // recognition is the same at 1024px on the long edge.
+  async function resizeImageForVision(file, maxDim = 1024) {
+    try {
+      const url = URL.createObjectURL(file);
+      const img = await new Promise((resolve, reject) => {
+        const i = new Image();
+        i.onload = () => resolve(i);
+        i.onerror = () => reject(new Error("Could not decode image"));
+        i.src = url;
+      });
+      const longSide = Math.max(img.naturalWidth, img.naturalHeight);
+      if (longSide <= maxDim) {
+        // Already small enough — return the original (no re-encode)
+        URL.revokeObjectURL(url);
+        return file;
+      }
+      const scale = maxDim / longSide;
+      const w = Math.round(img.naturalWidth * scale);
+      const h = Math.round(img.naturalHeight * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      return await new Promise(resolve => {
+        canvas.toBlob(blob => resolve(blob || file), "image/jpeg", 0.85);
+      });
+    } catch {
+      // If anything fails, fall back to original file — never block the API call
+      return file;
+    }
+  }
+
+  // Trigger a download of the given Blob/File using the supplied base name.
+  // Preserves original extension (.jpg/.png/etc.) by reading file.name or file.type.
+  function downloadAsName(file, baseName) {
+    if (!file || !baseName) return;
+    let ext = "";
+    const dot = (file.name || "").lastIndexOf(".");
+    if (dot > 0) ext = file.name.slice(dot + 1).toLowerCase();
+    if (!ext) ext = (file.type || "").split("/")[1] || "jpg";
+    if (ext === "jpeg") ext = "jpg";
+    const safeBase = baseName.replace(/[^A-Z0-9_-]/gi, "_");
+    const finalName = `${safeBase}.${ext}`;
+    const url = URL.createObjectURL(file);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = finalName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const r = new FileReader();
@@ -994,8 +1509,11 @@ Return only the JSON object, no commentary, no markdown fences.`;
     const key = getGeminiKey();
     if (!key) throw new Error("No API key configured");
 
-    const base64 = await fileToBase64(file);
-    const mime = file.type || "image/png";
+    // Resize first — large images take seconds longer to upload + process for no
+    // accuracy gain. 1024px on the long edge is plenty for Gemini vision.
+    const resized = await resizeImageForVision(file);
+    const base64 = await fileToBase64(resized);
+    const mime = resized.type || file.type || "image/jpeg";
 
     // Nudge Gemini to pick a DIFFERENT shortDesc keyword when we've seen
     // similar images recently. Auto-suffixing (uniquifyName) is just a safety
@@ -1030,14 +1548,43 @@ Return only the JSON object, no commentary, no markdown fences.`;
     // Note: gemini-2.5-flash has free-tier allocation on most accounts;
     // gemini-2.0-flash often shows "limit: 0" for new/Workspace accounts.
     const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(key);
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!resp.ok) {
-      const t = await resp.text().catch(() => "");
-      throw new Error(`HTTP ${resp.status} ${resp.statusText}${t ? " — " + t.slice(0, 200) : ""}`);
+
+    // Retry on transient failures (503 overload, 502 bad gateway, 429 rate limit,
+    // and network errors). Exponential backoff so we don't hammer Gemini while
+    // it's already struggling. Non-transient errors (400 bad request, 403 invalid
+    // key, etc.) fail immediately.
+    const MAX_RETRIES = 4;
+    const RETRYABLE = new Set([429, 500, 502, 503, 504]);
+    let resp, lastErr;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (resp.ok) break;
+        if (!RETRYABLE.has(resp.status)) {
+          // Non-retryable error — fail now with the response text
+          const t = await resp.text().catch(() => "");
+          throw new Error(`HTTP ${resp.status} ${resp.statusText}${t ? " — " + t.slice(0, 200) : ""}`);
+        }
+        lastErr = new Error(`HTTP ${resp.status} ${resp.statusText}`);
+      } catch (e) {
+        // fetch() threw (network error, CORS, etc.) — treat as retryable
+        lastErr = e;
+      }
+      // Backoff: 1s, 2s, 4s, 8s (Gemini "Retry-After" is in seconds)
+      if (attempt < MAX_RETRIES - 1) {
+        const retryAfter = resp?.headers?.get("retry-after");
+        const baseDelay = retryAfter ? Math.min(8, parseInt(retryAfter, 10) || 0) * 1000 : 0;
+        const delay = Math.max(baseDelay, 1000 * Math.pow(2, attempt)) + Math.random() * 300;
+        await new Promise(r => setTimeout(r, delay));
+      }
+    }
+    if (!resp || !resp.ok) {
+      const baseMsg = lastErr ? (lastErr.message || String(lastErr)) : "Gemini did not respond";
+      throw new Error(`${baseMsg} (after ${MAX_RETRIES} attempts)`);
     }
     const data = await resp.json();
 
@@ -1138,6 +1685,8 @@ Return only the JSON object, no commentary, no markdown fences.`;
       friendly = "Gemini quota for this model is 0 on your account. Open Google AI Studio → billing, or try a different model.";
     } else if (/HTTP 429/i.test(msg)) {
       friendly = "Gemini rate limit hit (HTTP 429). Wait a minute and try again.";
+    } else if (/HTTP 50[234]/i.test(msg)) {
+      friendly = "Gemini is overloaded right now (HTTP 503). Auto-retried 4 times. Try again in a minute or two.";
     } else if (/HTTP 400/i.test(msg) && /API key/i.test(msg)) {
       friendly = "Gemini rejected the API key. Double-check it in the 🔑 panel.";
     } else if (/safety/i.test(msg) || /BLOCK/i.test(msg)) {
@@ -1169,7 +1718,649 @@ Return only the JSON object, no commentary, no markdown fences.`;
     detectLanguageFromImage(f);
   }
 
+  // Track the current file in single-image mode so the Download button can save
+  // the original image renamed to the generated filename.
+  let currentFile = null;
+
+  // ────────── Batch processing ──────────────────────────────────────────
+  // Drop 2+ images → process them sequentially through Gemini and present
+  // a list with thumbnails, names, and per-row Copy/Download actions.
+  // Same TEMPLE-block, dedup, and shortDesc rules apply per row.
+  const batchCard = $("batchCard");
+  const batchList = $("batchList");
+  const batchProgress = $("batchProgress");
+  const batchDownloadAllBtn = $("batchDownloadAll");
+  const batchCopyAllBtn = $("batchCopyAll");
+  const batchClearBtn = $("batchClear");
+  let batchRows = []; // { file, row, status, name, result }
+
+  function clearBatch() {
+    batchRows = [];
+    batchList.innerHTML = "";
+    batchCard.hidden = true;
+    batchDownloadAllBtn.disabled = true;
+    batchCopyAllBtn.disabled = true;
+    batchProgress.textContent = "0 / 0";
+    // Reset bulk-apply state if those DOM elements exist (they're defined later
+    // in the script — guard so this function works even at very early call sites)
+    if (typeof batchSelectAll !== "undefined" && batchSelectAll) {
+      batchSelectAll.checked = false;
+      batchSelectAll.indeterminate = false;
+      bulkCatSel.value = "";
+      bulkSubSel.innerHTML = '<option value="">Subcategory…</option>';
+      bulkSubSel.disabled = true;
+      bulkApplyBtn.disabled = true;
+      bulkApplyCount.textContent = "0";
+      batchSelectAllLabel.textContent = "Select all";
+    }
+  }
+
+  function updateBatchToolbar() {
+    const done = batchRows.filter(r => r.status === "done").length;
+    const total = batchRows.length;
+    batchProgress.textContent = `${done} / ${total}`;
+    const anyDone = done > 0;
+    batchDownloadAllBtn.disabled = !anyDone || !window.JSZip;
+    batchCopyAllBtn.disabled = !anyDone;
+  }
+
+  function createBatchRow(file, index) {
+    const li = document.createElement("li");
+    li.className = "batch-row";
+
+    // ✓ Checkbox for bulk-apply selection
+    const checkWrap = document.createElement("div");
+    checkWrap.className = "row-check";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.setAttribute("aria-label", "Select row for bulk apply");
+    checkWrap.appendChild(checkbox);
+
+    const img = document.createElement("img");
+    img.className = "batch-thumb";
+    img.alt = "";
+    img.src = URL.createObjectURL(file);
+
+    const meta = document.createElement("div");
+    meta.className = "batch-meta";
+    const fn = document.createElement("div");
+    fn.className = "batch-filename";
+    fn.textContent = file.name;
+    const nm = document.createElement("div");
+    nm.className = "batch-name pending";
+    nm.textContent = "Queued…";
+    meta.appendChild(fn);
+    meta.appendChild(nm);
+
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+
+    const copyB = document.createElement("button");
+    copyB.type = "button";
+    copyB.className = "row-btn";
+    copyB.disabled = true;
+    copyB.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy';
+
+    const dlB = document.createElement("button");
+    dlB.type = "button";
+    dlB.className = "row-btn";
+    dlB.disabled = true;
+    dlB.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Save';
+
+    // ✎ Edit button — opens the full 4-field form to fix any wrong component
+    const editB = document.createElement("button");
+    editB.type = "button";
+    editB.className = "row-btn";
+    editB.disabled = true;
+    editB.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Edit';
+
+    actions.appendChild(editB);
+    actions.appendChild(copyB);
+    actions.appendChild(dlB);
+
+    li.appendChild(checkWrap);
+    li.appendChild(img);
+    li.appendChild(meta);
+    li.appendChild(actions);
+
+    const rowState = { file, li, fn, nm, copyB, dlB, editB, checkbox, status: "queued", name: "", result: null };
+
+    // Update selected-count + visual highlight when this row's checkbox toggles
+    checkbox.addEventListener("change", () => {
+      li.classList.toggle("selected", checkbox.checked);
+      updateBulkApplyButton();
+    });
+
+    // Click the name to edit it inline (only when row is done).
+    // Enter saves, Esc cancels, blur saves. Value is sanitized to A-Z 0-9 _ only.
+    nm.addEventListener("click", () => {
+      if (rowState.status !== "done" || nm.classList.contains("editing")) return;
+      const original = rowState.name;
+      nm.contentEditable = "true";
+      nm.classList.add("editing");
+      nm.focus();
+      // Place cursor at end
+      const range = document.createRange();
+      range.selectNodeContents(nm);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      const commit = () => {
+        nm.contentEditable = "false";
+        nm.classList.remove("editing");
+        // Sanitize whatever user typed: uppercase, keep A-Z 0-9 underscore
+        let cleaned = nm.textContent.toUpperCase().replace(/[^A-Z0-9_]+/g, "_").replace(/^_+|_+$/g, "");
+        if (cleaned.length > MAX_LEN) cleaned = cleaned.slice(0, MAX_LEN);
+        if (!cleaned) cleaned = original; // refuse empty
+        rowState.name = cleaned;
+        nm.textContent = cleaned;
+      };
+      const cancel = () => {
+        nm.contentEditable = "false";
+        nm.classList.remove("editing");
+        nm.textContent = original;
+      };
+
+      nm.addEventListener("keydown", function onKey(e) {
+        if (e.key === "Enter") { e.preventDefault(); nm.removeEventListener("keydown", onKey); commit(); nm.blur(); }
+        else if (e.key === "Escape") { e.preventDefault(); nm.removeEventListener("keydown", onKey); cancel(); nm.blur(); }
+      });
+      nm.addEventListener("blur", function onBlur() {
+        nm.removeEventListener("blur", onBlur);
+        if (nm.classList.contains("editing")) commit();
+      }, { once: true });
+    });
+
+    copyB.addEventListener("click", async () => {
+      if (!rowState.name) return;
+      try { await navigator.clipboard.writeText(rowState.name); }
+      catch {
+        const ta = document.createElement("textarea");
+        ta.value = rowState.name; document.body.appendChild(ta); ta.select();
+        document.execCommand("copy"); document.body.removeChild(ta);
+      }
+      copyB.textContent = "Copied";
+      setTimeout(() => {
+        copyB.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy';
+      }, 1400);
+    });
+
+    dlB.addEventListener("click", () => {
+      if (!rowState.name) return;
+      downloadAsName(rowState.file, rowState.name);
+      dlB.textContent = "Saved";
+      setTimeout(() => {
+        dlB.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Save';
+      }, 1400);
+    });
+
+    // ── Edit button: opens an inline form with all 4 fields, pre-filled from the
+    // current name (or from Gemini's original result for failed rows so the user
+    // can fix incomplete/missing fields). Save reassembles, Cancel discards. ──
+    editB.addEventListener("click", () => {
+      if (rowState.status !== "done" && rowState.status !== "failed") return;
+      if (li.querySelector(".batch-edit-form")) {
+        closeEditForm();
+        return;
+      }
+      openEditForm();
+    });
+
+    function parseRowName() {
+      // Best-effort parse: try to split current name back into 4 components.
+      // Falls back to Gemini's original result, then to empty fields.
+      const parts = (rowState.name || "").split("_");
+      let cat = "", sub = "", desc = "", lang = "";
+      if (parts.length >= 4 && VALID_CATEGORIES.includes(parts[0]) && VALID_LANGS.includes(parts[parts.length - 1])) {
+        cat = parts[0];
+        lang = parts[parts.length - 1];
+        sub = parts[1];
+        desc = parts.slice(2, -1).join("_"); // handle desc that contained no underscores after sanitize, normally a single segment
+      } else if (rowState.result) {
+        cat = (rowState.result.category || "").toUpperCase();
+        sub = (rowState.result.subcategory || "").toUpperCase();
+        desc = (rowState.result.shortDesc || "").toUpperCase();
+        lang = (rowState.result.language || "").toUpperCase();
+      }
+      return { cat, sub, desc, lang };
+    }
+
+    function openEditForm() {
+      const cur = parseRowName();
+      li.classList.add("editing");
+
+      const form = document.createElement("div");
+      form.className = "batch-edit-form";
+
+      // Category dropdown
+      const catWrap = document.createElement("div");
+      catWrap.className = "field-mini";
+      const catLabel = document.createElement("label");
+      catLabel.textContent = "Category";
+      const catSel = document.createElement("select");
+      const catOpts = [["","— select —"],["DW","DW — Daily Wishes"],["FE","FE — Festivals"],["OC","OC — Occasions"],["DV","DV — Devotional"],["TE","TE — Themes/Events"],["QS","QS — Quotes/Status"]];
+      catOpts.forEach(([v, t]) => {
+        const o = document.createElement("option");
+        o.value = v; o.textContent = t;
+        catSel.appendChild(o);
+      });
+      catSel.value = cur.cat;
+      catWrap.appendChild(catLabel); catWrap.appendChild(catSel);
+
+      // Subcategory dropdown (rebuilt when category changes)
+      const subWrap = document.createElement("div");
+      subWrap.className = "field-mini";
+      const subLabel = document.createElement("label");
+      subLabel.textContent = "Subcategory";
+      const subSel = document.createElement("select");
+      subWrap.appendChild(subLabel); subWrap.appendChild(subSel);
+
+      function rebuildSubOptions(selectedSub) {
+        subSel.innerHTML = "";
+        const blank = document.createElement("option");
+        blank.value = ""; blank.textContent = "— select —";
+        subSel.appendChild(blank);
+        const list = SUBCATS[catSel.value] || [];
+        list.forEach(s => {
+          const o = document.createElement("option");
+          o.value = s; o.textContent = s;
+          subSel.appendChild(o);
+        });
+        // If the requested value isn't in the list, add it (Gemini may have invented one)
+        if (selectedSub && !list.includes(selectedSub)) {
+          const o = document.createElement("option");
+          o.value = selectedSub; o.textContent = selectedSub + " (custom)";
+          subSel.appendChild(o);
+        }
+        subSel.value = selectedSub || "";
+      }
+      rebuildSubOptions(cur.sub);
+      catSel.addEventListener("change", () => rebuildSubOptions(""));
+
+      // Description input
+      const descWrap = document.createElement("div");
+      descWrap.className = "field-mini";
+      const descLabel = document.createElement("label");
+      descLabel.textContent = "Short Description";
+      const descIn = document.createElement("input");
+      descIn.type = "text"; descIn.value = cur.desc; descIn.placeholder = "e.g. SUNRISE";
+      descWrap.appendChild(descLabel); descWrap.appendChild(descIn);
+
+      // Language dropdown
+      const langWrap = document.createElement("div");
+      langWrap.className = "field-mini";
+      const langLabel = document.createElement("label");
+      langLabel.textContent = "Language";
+      const langSel = document.createElement("select");
+      const langOpts = [["","— select —"],["HI","HI — Hindi"],["EN","EN — English"],["NA","NA — No text"]];
+      langOpts.forEach(([v, t]) => {
+        const o = document.createElement("option");
+        o.value = v; o.textContent = t;
+        langSel.appendChild(o);
+      });
+      langSel.value = cur.lang;
+      langWrap.appendChild(langLabel); langWrap.appendChild(langSel);
+
+      // Actions
+      const actionsRow = document.createElement("div");
+      actionsRow.className = "batch-edit-actions";
+      const cancelB = document.createElement("button");
+      cancelB.type = "button"; cancelB.textContent = "Cancel";
+      const saveB = document.createElement("button");
+      saveB.type = "button"; saveB.className = "primary"; saveB.textContent = "Save";
+      actionsRow.appendChild(cancelB); actionsRow.appendChild(saveB);
+
+      form.appendChild(catWrap);
+      form.appendChild(subWrap);
+      form.appendChild(descWrap);
+      form.appendChild(langWrap);
+      form.appendChild(actionsRow);
+      li.appendChild(form);
+
+      cancelB.addEventListener("click", closeEditForm);
+      saveB.addEventListener("click", () => {
+        // Build a synthetic result and run it through the standard pipeline
+        const newResult = {
+          category: catSel.value,
+          subcategory: subSel.value,
+          shortDesc: descIn.value,
+          language: langSel.value,
+        };
+        const out = computeBatchName(newResult);
+        if (out.ok) {
+          rowState.name = out.name;
+          rowState.result = newResult;
+          rowState.nm.classList.remove("pending", "failed");
+          rowState.nm.textContent = out.name;
+          rowState.li.classList.add("done");
+          rowState.li.classList.remove("failed");
+          closeEditForm();
+        } else {
+          alert("Can't save — missing: " + out.missing.join(", "));
+        }
+      });
+    }
+
+    function closeEditForm() {
+      const form = li.querySelector(".batch-edit-form");
+      if (form) form.remove();
+      li.classList.remove("editing");
+    }
+
+    return rowState;
+  }
+
+  // Apply the SAME rules as the single-image flow so batch output is consistent:
+  // TEMPLE-block (move setting-words from subcat to shortDesc), sanitize, dedup
+  // via uniquifyName (auto-suffix _2/_3), then assemble + register in history.
+  function computeBatchName(r) {
+    let cat = (r.category || "").toUpperCase();
+    if (!VALID_CATEGORIES.includes(cat)) cat = "";
+    let sub = (r.subcategory || "").toUpperCase();
+    let desc = (r.shortDesc || "").toUpperCase();
+    if (sub && SETTING_WORDS.has(sub)) {
+      if (!desc) desc = sub;
+      sub = "";
+    }
+    sub = sanitize(sub);
+    desc = sanitize(desc);
+    let lang = (r.language || "").toUpperCase();
+    if (!VALID_LANGS.includes(lang)) lang = "";
+
+    if (!cat || !sub || !desc || !lang) {
+      const missing = [];
+      if (!cat) missing.push("Category");
+      if (!sub) missing.push("SubCategory");
+      if (!desc) missing.push("Description");
+      if (!lang) missing.push("Language");
+      return { ok: false, partial: [cat, sub, desc, lang].filter(Boolean).join("_") || "(incomplete)", missing };
+    }
+
+    // Trim desc to fit 30-char limit
+    const fixed = cat.length + 1 + sub.length + 1 + 1 + lang.length;
+    const maxDesc = MAX_LEN - fixed;
+    if (desc.length > maxDesc) desc = desc.slice(0, Math.max(0, maxDesc));
+
+    // Disambiguate against history
+    const uniq = uniquifyName(cat, sub, desc, lang);
+    return { ok: true, name: uniq.name };
+  }
+
+  async function processBatch(files) {
+    clearBatch();
+    batchCard.hidden = false;
+    batchProgress.textContent = `0 / ${files.length}`;
+
+    // Create UI rows up-front so user sees the full queue
+    files.forEach((f, i) => {
+      const rs = createBatchRow(f, i);
+      batchRows.push(rs);
+      batchList.appendChild(rs.li);
+    });
+    updateBulkApplyButton();
+    batchCard.scrollIntoView({ block: "start", behavior: "smooth" });
+
+    const hasKey = !!getGeminiKey();
+    if (!hasKey) {
+      // No key → can't batch; show clear message in every row
+      for (const rs of batchRows) {
+        rs.status = "failed";
+        rs.nm.classList.add("failed");
+        rs.nm.classList.remove("pending");
+        rs.nm.textContent = "Batch mode requires a Gemini API key. Set one up and re-upload.";
+        rs.li.classList.add("failed");
+      }
+      return;
+    }
+
+    // Process sequentially — keeps us under Gemini's rate limit and lets dedup
+    // work correctly (each row sees the prior names in history).
+    for (let i = 0; i < batchRows.length; i++) {
+      const rs = batchRows[i];
+      rs.status = "running";
+      rs.nm.textContent = `Analyzing with Gemini… (${i + 1}/${batchRows.length})`;
+
+      try {
+        const r = await analyzeWithGemini(rs.file);
+        rs.result = r;
+        const out = computeBatchName(r);
+        if (out.ok) {
+          rs.name = out.name;
+          rs.status = "done";
+          rs.nm.classList.remove("pending", "failed");
+          rs.nm.textContent = out.name;
+          rs.li.classList.add("done");
+          rs.copyB.disabled = false;
+          rs.dlB.disabled = false;
+          rs.editB.disabled = false;
+          addToHistory(out.name);
+        } else {
+          rs.status = "failed";
+          rs.nm.classList.add("failed");
+          rs.nm.classList.remove("pending");
+          rs.nm.textContent = `Incomplete — missing ${out.missing.join(", ")} (Gemini returned: ${out.partial})`;
+          rs.li.classList.add("failed");
+        }
+      } catch (err) {
+        rs.status = "failed";
+        rs.nm.classList.add("failed");
+        rs.nm.classList.remove("pending");
+        const msg = err && err.message ? err.message : String(err);
+        rs.nm.textContent = `Failed: ${msg.length > 120 ? msg.slice(0, 120) + "…" : msg}`;
+        rs.li.classList.add("failed");
+      }
+      // Edit button is available for both done and failed rows so the user
+      // can fix missing/wrong fields on incomplete rows without re-uploading.
+      if (rs.status === "done" || rs.status === "failed") rs.editB.disabled = false;
+      updateBatchToolbar();
+    }
+  }
+
+  // "Download all (.zip)" — bundle every successful row's original file renamed
+  batchDownloadAllBtn.addEventListener("click", async () => {
+    if (!window.JSZip) {
+      alert("JSZip didn't load — try refreshing the page.");
+      return;
+    }
+    const done = batchRows.filter(r => r.status === "done" && r.name);
+    if (done.length === 0) return;
+
+    const zip = new JSZip();
+    const used = new Set();
+    for (const rs of done) {
+      // Preserve extension from the original file
+      let ext = "jpg";
+      const dot = (rs.file.name || "").lastIndexOf(".");
+      if (dot > 0) ext = rs.file.name.slice(dot + 1).toLowerCase();
+      if (ext === "jpeg") ext = "jpg";
+      let zipName = `${rs.name}.${ext}`;
+      // In case two rows somehow produced the same name (shouldn't happen with
+      // dedup, but defensive), append a counter to keep them unique in the zip.
+      let n = 2;
+      while (used.has(zipName)) {
+        zipName = `${rs.name}_${n}.${ext}`;
+        n++;
+      }
+      used.add(zipName);
+      zip.file(zipName, rs.file);
+    }
+
+    batchDownloadAllBtn.disabled = true;
+    const origLabel = batchDownloadAllBtn.innerHTML;
+    batchDownloadAllBtn.innerHTML = "Building zip…";
+    try {
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `templates_${new Date().toISOString().slice(0, 10)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (e) {
+      alert("Couldn't build the zip: " + (e && e.message ? e.message : e));
+    } finally {
+      batchDownloadAllBtn.innerHTML = origLabel;
+      batchDownloadAllBtn.disabled = false;
+    }
+  });
+
+  // "Copy all names" — newline-separated list of every successful row
+  batchCopyAllBtn.addEventListener("click", async () => {
+    const names = batchRows.filter(r => r.status === "done" && r.name).map(r => r.name);
+    if (names.length === 0) return;
+    const text = names.join("\n");
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); document.body.removeChild(ta);
+    }
+    const orig = batchCopyAllBtn.innerHTML;
+    batchCopyAllBtn.innerHTML = `Copied ${names.length} name${names.length === 1 ? "" : "s"}`;
+    setTimeout(() => { batchCopyAllBtn.innerHTML = orig; }, 1600);
+  });
+
+  batchClearBtn.addEventListener("click", () => {
+    clearBatch();
+    fileInput.value = "";
+  });
+
+  // ── Bulk-apply: select rows, pick a category/subcategory, apply to all ──
+  const batchSelectAll = $("batchSelectAll");
+  const batchSelectAllLabel = $("batchSelectAllLabel");
+  const bulkCatSel = $("bulkCat");
+  const bulkSubSel = $("bulkSub");
+  const bulkApplyBtn = $("bulkApply");
+  const bulkApplyCount = $("bulkApplyCount");
+
+  function getSelectedRows() {
+    return batchRows.filter(r => r.checkbox && r.checkbox.checked);
+  }
+
+  function updateBulkApplyButton() {
+    const selected = getSelectedRows();
+    const count = selected.length;
+    bulkApplyCount.textContent = String(count);
+    batchSelectAllLabel.textContent = count > 0 ? `Selected: ${count} of ${batchRows.length}` : "Select all";
+    // Apply is enabled only when both Category AND Subcategory are picked AND ≥1 row selected
+    bulkApplyBtn.disabled = !count || !bulkCatSel.value || !bulkSubSel.value;
+    // Sync "select all" checkbox state
+    if (batchRows.length === 0) {
+      batchSelectAll.checked = false;
+      batchSelectAll.indeterminate = false;
+    } else if (count === batchRows.length) {
+      batchSelectAll.checked = true;
+      batchSelectAll.indeterminate = false;
+    } else if (count === 0) {
+      batchSelectAll.checked = false;
+      batchSelectAll.indeterminate = false;
+    } else {
+      batchSelectAll.checked = false;
+      batchSelectAll.indeterminate = true;
+    }
+  }
+
+  // Select-all toggle: check/uncheck every row
+  batchSelectAll.addEventListener("change", () => {
+    const want = batchSelectAll.checked;
+    batchRows.forEach(r => {
+      if (r.checkbox) {
+        r.checkbox.checked = want;
+        r.li.classList.toggle("selected", want);
+      }
+    });
+    updateBulkApplyButton();
+  });
+
+  // Category dropdown change → rebuild subcategory options (reusing existing SUBCATS)
+  bulkCatSel.addEventListener("change", () => {
+    bulkSubSel.innerHTML = "";
+    const blank = document.createElement("option");
+    blank.value = ""; blank.textContent = "Subcategory…";
+    bulkSubSel.appendChild(blank);
+    const list = SUBCATS[bulkCatSel.value] || [];
+    list.forEach(s => {
+      const o = document.createElement("option");
+      o.value = s; o.textContent = s;
+      bulkSubSel.appendChild(o);
+    });
+    bulkSubSel.disabled = list.length === 0;
+    bulkSubSel.value = "";
+    updateBulkApplyButton();
+  });
+  bulkSubSel.addEventListener("change", updateBulkApplyButton);
+
+  // Apply button — overwrites Category + SubCategory on every selected row,
+  // keeping each row's own Description and Language as Gemini detected them.
+  bulkApplyBtn.addEventListener("click", () => {
+    const cat = bulkCatSel.value;
+    const sub = bulkSubSel.value;
+    const selected = getSelectedRows();
+    if (!cat || !sub || !selected.length) return;
+
+    let applied = 0;
+    for (const rs of selected) {
+      // Keep each row's existing desc + lang (Gemini auto-detected these per template).
+      // If desc/lang were missing on a failed row, the result will still be incomplete
+      // and the row stays failed with a helpful message.
+      let desc = "", lang = "";
+      if (rs.result) {
+        desc = (rs.result.shortDesc || "").toUpperCase();
+        lang = (rs.result.language || "").toUpperCase();
+      }
+      // If we already had a successful name, parse desc + lang back out of it as a
+      // fallback (covers the case where rs.result was empty but the row was completed)
+      if ((!desc || !lang) && rs.name) {
+        const parts = rs.name.split("_");
+        if (parts.length >= 4 && VALID_CATEGORIES.includes(parts[0]) && VALID_LANGS.includes(parts[parts.length - 1])) {
+          if (!lang) lang = parts[parts.length - 1];
+          if (!desc) desc = parts.slice(2, -1).join("_");
+        }
+      }
+      // Strip any auto-suffix digits the previous name had (we re-uniquify below)
+      desc = desc.replace(/\d+$/, "");
+
+      const newResult = { category: cat, subcategory: sub, shortDesc: desc, language: lang };
+      const out = computeBatchName(newResult);
+      if (out.ok) {
+        rs.name = out.name;
+        rs.result = newResult;
+        rs.status = "done";
+        rs.nm.classList.remove("pending", "failed");
+        rs.nm.textContent = out.name;
+        rs.li.classList.add("done");
+        rs.li.classList.remove("failed");
+        rs.copyB.disabled = false;
+        rs.dlB.disabled = false;
+        rs.editB.disabled = false;
+        addToHistory(out.name);
+        applied++;
+      } else {
+        // Row still incomplete after bulk apply (missing desc or lang)
+        rs.result = newResult;
+        rs.status = "failed";
+        rs.nm.classList.remove("pending");
+        rs.nm.classList.add("failed");
+        rs.nm.textContent = `Bulk apply set ${cat}/${sub}, but still missing ${out.missing.join(", ")} — click Edit to complete`;
+        rs.li.classList.add("failed");
+        rs.li.classList.remove("done");
+        rs.editB.disabled = false;
+      }
+    }
+
+    // Visual feedback on the button
+    const orig = bulkApplyBtn.innerHTML;
+    bulkApplyBtn.innerHTML = `Applied to ${applied}`;
+    setTimeout(() => { bulkApplyBtn.innerHTML = orig; updateBulkApplyButton(); }, 1400);
+    updateBatchToolbar();
+  });
+
   function handleFile(f) {
+    currentFile = f;
     const url = URL.createObjectURL(f);
     preview.src = url;
     previewWrap.classList.add("active");
@@ -1191,6 +2382,7 @@ Return only the JSON object, no commentary, no markdown fences.`;
     counter.classList.remove("over", "warn");
     errorsEl.textContent = "";
     copyBtn.disabled = true;
+    downloadBtn.disabled = true;
 
     if (getGeminiKey()) {
       // Gemini path — single round trip, much more accurate
@@ -1680,39 +2872,169 @@ Return only the JSON object, no commentary, no markdown fences.`;
     // maybeFinalize() once OCR and vision have both completed.
   }
 
-  function updateSubcatList() {
-    const cat = categorySel.value;
-    const prev = subcatInput.value;
-    subcatInput.innerHTML = '<option value="">Select subcategory…</option>';
-    if (cat && SUBCATS[cat]) {
-      SUBCATS[cat].forEach(s => {
-        const opt = document.createElement("option");
-        opt.value = s;
-        opt.textContent = s;
-        subcatInput.appendChild(opt);
-      });
-      subcatHelp.textContent = `${SUBCATS[cat].length} options available`;
+  // ─── Searchable subcategory combobox ───────────────────────────────────
+  // The subcategory field is an <input> with a custom dropdown list below it.
+  // currentSubcatOptions is the set of options available for the active category,
+  // plus any unlisted values added at runtime by setSubcat() (e.g. when Gemini
+  // returns a subcategory that's not in our predefined SUBCATS list).
+  let currentSubcatOptions = [];
+  let subcatActiveIdx = -1;          // currently-highlighted item in the list
+  const subcatCombo = $("subcatCombo");
+  const subcatListBox = $("subcatListBox");
+  const subcatToggle = $("subcatToggle");
+
+  function openSubcatList()  { subcatCombo.classList.add("open");  subcatListBox.hidden = false; subcatInput.setAttribute("aria-expanded", "true"); }
+  function closeSubcatList() { subcatCombo.classList.remove("open"); subcatListBox.hidden = true;  subcatInput.setAttribute("aria-expanded", "false"); subcatActiveIdx = -1; }
+
+  function renderSubcatList(filter) {
+    subcatListBox.innerHTML = "";
+    subcatActiveIdx = -1;
+    const q = (filter || "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
+
+    // Filter: prefix match first, then substring match — both case-insensitive
+    let matches;
+    if (!q) {
+      matches = currentSubcatOptions.slice();
     } else {
-      subcatHelp.textContent = "Pick a category to see options.";
+      const prefix = currentSubcatOptions.filter(o => o.startsWith(q));
+      const substring = currentSubcatOptions.filter(o => !o.startsWith(q) && o.includes(q));
+      matches = prefix.concat(substring);
     }
-    // Restore previous value if still valid, otherwise leave unselected
-    if (prev && Array.from(subcatInput.options).some(o => o.value === prev)) {
-      subcatInput.value = prev;
+
+    if (matches.length === 0) {
+      const li = document.createElement("li");
+      li.className = "empty";
+      if (!currentSubcatOptions.length) {
+        li.textContent = "Pick a category first.";
+      } else if (q) {
+        li.textContent = `No match for "${q}". Press Enter to add it as a custom subcategory.`;
+      } else {
+        li.textContent = "No options.";
+      }
+      subcatListBox.appendChild(li);
+      return;
     }
+
+    matches.slice(0, 200).forEach((opt, i) => {
+      const li = document.createElement("li");
+      li.setAttribute("role", "option");
+      li.dataset.value = opt;
+      li.textContent = opt;
+      li.addEventListener("mousedown", (e) => {
+        // mousedown (not click) so we set the value before the input blur fires
+        e.preventDefault();
+        subcatInput.value = opt;
+        closeSubcatList();
+        regenerate();
+      });
+      subcatListBox.appendChild(li);
+    });
   }
 
-  // Safely set subcategory — adds the option dynamically if it isn't in the current list
+  function highlightSubcatItem(idx) {
+    const items = subcatListBox.querySelectorAll("li[data-value]");
+    items.forEach((el, i) => el.classList.toggle("active", i === idx));
+    const active = items[idx];
+    if (active) active.scrollIntoView({ block: "nearest" });
+  }
+
+  // Track *why* updateSubcatList was called. When the user manually changes
+  // category in the dropdown, we want to clear the old subcategory (e.g.
+  // switching DV → QS shouldn't keep SAIBABA in the field). When it's called
+  // programmatically by detection code (Gemini/MobileNet/OCR), the caller
+  // already set the right values and we should preserve them.
+  function updateSubcatList(opts) {
+    opts = opts || {};
+    const userInitiated = !!opts.userChangedCategory;
+
+    const cat = categorySel.value;
+    const prev = subcatInput.value;
+    if (cat && SUBCATS[cat]) {
+      currentSubcatOptions = SUBCATS[cat].slice();
+      subcatHelp.textContent = `${currentSubcatOptions.length} options available — type to search`;
+    } else {
+      currentSubcatOptions = [];
+      subcatHelp.textContent = "Pick a category to see options.";
+    }
+
+    if (!cat) {
+      // No category → no subcategory possible
+      subcatInput.value = "";
+    } else if (prev && !currentSubcatOptions.includes(prev)) {
+      if (userInitiated) {
+        // User picked a new category; the old subcat doesn't belong here
+        subcatInput.value = "";
+      } else {
+        // Programmatic update — preserve runtime-added value (Gemini may have
+        // invented a subcategory that's not in our preset list for this category)
+        currentSubcatOptions.push(prev);
+      }
+    }
+    // If the dropdown is open, refresh it with the new category's options
+    if (!subcatListBox.hidden) renderSubcatList(subcatInput.value);
+  }
+
+  // Safely set subcategory — adds the value as a runtime option if it isn't in the
+  // current category's predefined SUBCATS list (e.g. Gemini invented a new one).
   function setSubcat(value) {
     if (!value) { subcatInput.value = ""; return; }
-    const exists = Array.from(subcatInput.options).some(o => o.value === value);
-    if (!exists) {
-      const opt = document.createElement("option");
-      opt.value = value;
-      opt.textContent = value;
-      subcatInput.appendChild(opt);
+    if (!currentSubcatOptions.includes(value)) {
+      currentSubcatOptions.push(value);
     }
     subcatInput.value = value;
   }
+
+  // ─── Combobox interaction ─────────────────────────────────────────────
+  subcatInput.addEventListener("focus", () => {
+    renderSubcatList(subcatInput.value);
+    openSubcatList();
+  });
+  subcatInput.addEventListener("input", () => {
+    renderSubcatList(subcatInput.value);
+    openSubcatList();
+    regenerate();
+  });
+  subcatInput.addEventListener("keydown", (e) => {
+    const items = subcatListBox.querySelectorAll("li[data-value]");
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (subcatListBox.hidden) { renderSubcatList(subcatInput.value); openSubcatList(); }
+      if (items.length) { subcatActiveIdx = Math.min(items.length - 1, subcatActiveIdx + 1); highlightSubcatItem(subcatActiveIdx); }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (items.length) { subcatActiveIdx = Math.max(0, subcatActiveIdx - 1); highlightSubcatItem(subcatActiveIdx); }
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (subcatActiveIdx >= 0 && items[subcatActiveIdx]) {
+        subcatInput.value = items[subcatActiveIdx].dataset.value;
+      } else if (subcatInput.value) {
+        // No selection — sanitize whatever user typed as a custom subcategory
+        const custom = sanitize(subcatInput.value);
+        if (custom) {
+          subcatInput.value = custom;
+          if (!currentSubcatOptions.includes(custom)) currentSubcatOptions.push(custom);
+        }
+      }
+      closeSubcatList();
+      regenerate();
+    } else if (e.key === "Escape") {
+      closeSubcatList();
+    }
+  });
+  subcatToggle.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (subcatListBox.hidden) {
+      renderSubcatList(subcatInput.value);
+      openSubcatList();
+      subcatInput.focus();
+    } else {
+      closeSubcatList();
+    }
+  });
+  // Close when clicking anywhere outside
+  document.addEventListener("mousedown", (e) => {
+    if (!subcatCombo.contains(e.target)) closeSubcatList();
+  });
 
   function sanitize(s) {
     if (!s) return "";
@@ -1780,10 +3102,17 @@ Return only the JSON object, no commentary, no markdown fences.`;
 
     const canCopy = cat && sub && desc && lang && len > 0 && len <= MAX_LEN && errs.length === 0;
     copyBtn.disabled = !canCopy;
+    // Download only enabled when we have BOTH a valid name AND the current file
+    downloadBtn.disabled = !canCopy || !currentFile;
   }
 
-  categorySel.addEventListener("change", () => { updateSubcatList(); regenerate(); });
-  subcatInput.addEventListener("input", regenerate);
+  // User clicked the category dropdown — clear any stale subcategory value
+  categorySel.addEventListener("change", () => {
+    updateSubcatList({ userChangedCategory: true });
+    regenerate();
+  });
+  // Note: subcatInput's 'input' listener is wired up in the combobox section above
+  // — it filters the dropdown and calls regenerate(). Don't add another one here.
   descInput.addEventListener("input", regenerate);
   languageSel.addEventListener("change", regenerate);
 
@@ -1853,6 +3182,22 @@ Return only the JSON object, no commentary, no markdown fences.`;
     // suffix variant — otherwise the user could click Copy twice in a row and
     // get the same string both times.
     regenerate();
+  });
+
+  // Download the original image renamed to the generated filename.
+  downloadBtn.addEventListener("click", () => {
+    if (downloadBtn.disabled || !currentFile) return;
+    const text = generated.classList.contains("empty") ? "" : generated.textContent.trim();
+    if (!text) return;
+    downloadAsName(currentFile, text);
+    // Treat this as a finalization too — record in history + auto-suffix the
+    // displayed name so a second click would download with the next number.
+    addToHistory(text);
+    regenerate();
+    // Visual feedback
+    const orig = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved';
+    setTimeout(() => { downloadBtn.innerHTML = orig; }, 1400);
   });
 
   // ----- Gemini API key UI wiring -----
