@@ -1545,46 +1545,61 @@ Return only the JSON object, no commentary, no markdown fences.`;
       },
     };
 
-    // Note: gemini-2.5-flash has free-tier allocation on most accounts;
-    // gemini-2.0-flash often shows "limit: 0" for new/Workspace accounts.
-    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(key);
-
-    // Retry on transient failures (503 overload, 502 bad gateway, 429 rate limit,
-    // and network errors). Exponential backoff so we don't hammer Gemini while
-    // it's already struggling. Non-transient errors (400 bad request, 403 invalid
-    // key, etc.) fail immediately.
-    const MAX_RETRIES = 4;
+    // Try the primary model first; fall back to a smaller-quota model if 429 persists.
+    // gemini-2.5-flash has free-tier allocation on most accounts; gemini-2.5-flash-lite
+    // has a separate quota pool, so if the primary is exhausted the secondary may still
+    // work. gemini-2.0-flash often shows "limit: 0" for newer/Workspace accounts.
+    const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+    const MAX_RETRIES_PER_MODEL = 3;
     const RETRYABLE = new Set([429, 500, 502, 503, 504]);
-    let resp, lastErr;
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      try {
-        resp = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        if (resp.ok) break;
-        if (!RETRYABLE.has(resp.status)) {
-          // Non-retryable error — fail now with the response text
-          const t = await resp.text().catch(() => "");
-          throw new Error(`HTTP ${resp.status} ${resp.statusText}${t ? " — " + t.slice(0, 200) : ""}`);
+
+    let resp, lastErr, lastBody = "";
+    modelLoop:
+    for (const model of MODELS) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=` + encodeURIComponent(key);
+      for (let attempt = 0; attempt < MAX_RETRIES_PER_MODEL; attempt++) {
+        try {
+          resp = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+          if (resp.ok) break modelLoop;
+          if (!RETRYABLE.has(resp.status)) {
+            const t = await resp.text().catch(() => "");
+            throw new Error(`HTTP ${resp.status} ${resp.statusText}${t ? " — " + t.slice(0, 200) : ""}`);
+          }
+          lastBody = await resp.text().catch(() => "");
+          lastErr = new Error(`HTTP ${resp.status} ${resp.statusText} (model=${model})`);
+        } catch (e) {
+          lastErr = e;
         }
-        lastErr = new Error(`HTTP ${resp.status} ${resp.statusText}`);
-      } catch (e) {
-        // fetch() threw (network error, CORS, etc.) — treat as retryable
-        lastErr = e;
+        if (attempt < MAX_RETRIES_PER_MODEL - 1) {
+          const retryAfter = resp?.headers?.get("retry-after");
+          const baseDelay = retryAfter ? Math.min(20, parseInt(retryAfter, 10) || 0) * 1000 : 0;
+          // Longer backoff for 429: 2s, 6s, 18s — gives the per-minute window time to refill
+          const expDelay = (resp?.status === 429 ? 2000 : 1000) * Math.pow(3, attempt);
+          const delay = Math.max(baseDelay, expDelay) + Math.random() * 300;
+          await new Promise(r => setTimeout(r, delay));
+        }
       }
-      // Backoff: 1s, 2s, 4s, 8s (Gemini "Retry-After" is in seconds)
-      if (attempt < MAX_RETRIES - 1) {
-        const retryAfter = resp?.headers?.get("retry-after");
-        const baseDelay = retryAfter ? Math.min(8, parseInt(retryAfter, 10) || 0) * 1000 : 0;
-        const delay = Math.max(baseDelay, 1000 * Math.pow(2, attempt)) + Math.random() * 300;
-        await new Promise(r => setTimeout(r, delay));
-      }
+      // If we got here, all retries on this model failed — log it and try next model
+      console.warn(`Model ${model} exhausted retries (last status: ${resp?.status})`);
     }
     if (!resp || !resp.ok) {
+      // Build a more specific message for 429 (per-minute vs daily quota)
+      let detail = "";
+      if (resp?.status === 429) {
+        if (/per\s*day|daily|FreeTier.*Day/i.test(lastBody)) {
+          detail = " — Daily free-tier quota exhausted. Resets at midnight Pacific. To continue today, enable billing on your Google Cloud project (still free under daily limit) or wait.";
+        } else if (/per\s*minute|RPM|GenerateRequestsPerMinute/i.test(lastBody)) {
+          detail = " — Per-minute rate limit. The app will auto-throttle batch uploads; for single uploads, just wait ~30s and try again.";
+        } else {
+          detail = " — Quota exceeded. Check your usage at ai.dev/rate-limit.";
+        }
+      }
       const baseMsg = lastErr ? (lastErr.message || String(lastErr)) : "Gemini did not respond";
-      throw new Error(`${baseMsg} (after ${MAX_RETRIES} attempts)`);
+      throw new Error(`${baseMsg} (tried ${MODELS.length} models × ${MAX_RETRIES_PER_MODEL} retries)${detail}`);
     }
     const data = await resp.json();
 
@@ -1683,8 +1698,10 @@ Return only the JSON object, no commentary, no markdown fences.`;
     let friendly = msg;
     if (/HTTP 429/i.test(msg) && /limit:\s*0/i.test(msg)) {
       friendly = "Gemini quota for this model is 0 on your account. Open Google AI Studio → billing, or try a different model.";
+    } else if (/HTTP 429/i.test(msg) && /[Dd]aily/i.test(msg)) {
+      friendly = "Daily free-tier quota exhausted (resets at midnight Pacific). Enable billing on your Google Cloud project to continue today, or wait.";
     } else if (/HTTP 429/i.test(msg)) {
-      friendly = "Gemini rate limit hit (HTTP 429). Wait a minute and try again.";
+      friendly = "Gemini rate limit hit (HTTP 429). Wait 30-60 seconds and try again.";
     } else if (/HTTP 50[234]/i.test(msg)) {
       friendly = "Gemini is overloaded right now (HTTP 503). Auto-retried 4 times. Try again in a minute or two.";
     } else if (/HTTP 400/i.test(msg) && /API key/i.test(msg)) {
@@ -2115,12 +2132,26 @@ Return only the JSON object, no commentary, no markdown fences.`;
       return;
     }
 
-    // Process sequentially — keeps us under Gemini's rate limit and lets dedup
-    // work correctly (each row sees the prior names in history).
+    // Process sequentially with paced throttling — Gemini free tier is ~10-15
+    // requests/minute. We pace at ~10/min (6s minimum gap) so we don't trip the
+    // per-minute rate limit and exhaust retries unnecessarily.
+    const MIN_GAP_MS = 6000;       // ~10 requests/minute
+    let lastRequestAt = 0;
+
     for (let i = 0; i < batchRows.length; i++) {
       const rs = batchRows[i];
       rs.status = "running";
+
+      // Wait if necessary to respect the rate limit
+      const sinceLast = Date.now() - lastRequestAt;
+      if (i > 0 && sinceLast < MIN_GAP_MS) {
+        const waitMs = MIN_GAP_MS - sinceLast;
+        const sec = Math.ceil(waitMs / 1000);
+        rs.nm.textContent = `Waiting ${sec}s to respect Gemini rate limit…`;
+        await new Promise(r => setTimeout(r, waitMs));
+      }
       rs.nm.textContent = `Analyzing with Gemini… (${i + 1}/${batchRows.length})`;
+      lastRequestAt = Date.now();
 
       try {
         const r = await analyzeWithGemini(rs.file);
